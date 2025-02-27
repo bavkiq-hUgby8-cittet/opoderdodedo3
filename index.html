@@ -1,4 +1,32 @@
-<!DOCTYPE html>
+function renderCard(rank, suit){
+  if(rank === 'Joker'){
+    return `
+      <div class="card-front" style="background: linear-gradient(135deg, #ffd700 0%, #f9a825 100%);">
+        <div class="card-center-symbol" style="font-size: 1.8rem; color: var(--dark);">
+          <i class="fas fa-crown"></i><br>
+          <span style="font-size: 1rem;">CORINGA</span>
+        </div>
+      </div>
+    `;
+  }
+  
+  const isRed = (suit === '♥' || suit === '♦');
+  const suitSymbol = suit === '♥' ? '♥️' : 
+                    suit === '♦' ? '♦️' : 
+                    suit === '♣' ? '♣️' : 
+                    suit === '♠' ? '♠️' : '';
+                    
+  return `
+    <div class="card-front">
+      <div class="card-rank-suit ${isRed ? 'red' : 'black'}">
+        ${rank}${suitSymbol}
+      </div>
+      <div class="card-center-symbol ${isRed ? 'red' : 'black'}">
+        ${rank}<br>${suitSymbol}
+      </div>
+    </div>
+  `;
+}<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -174,19 +202,46 @@
     @media (max-width: 768px) {
       .game-grid {
         grid-template-columns: 1fr;
-        grid-template-rows: auto minmax(200px, 1fr) auto auto auto;
+        grid-template-rows: auto minmax(200px, 1fr) minmax(150px, auto) minmax(150px, auto) auto;
         grid-template-areas: 
           "header"
           "center-panel"
           "left-panel"
           "right-panel"
           "footer";
-        height: auto;
+        height: 100%;
         overflow-y: auto;
       }
       
       .left-panel, .center-panel, .right-panel {
         max-height: none;
+        overflow-y: auto;
+      }
+      
+      .center-panel {
+        height: 300px; /* Altura fixa para o painel central em mobile */
+      }
+      
+      #mainContainer {
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto;
+      }
+      
+      #contentScroll {
+        overflow-y: auto;
+      }
+      
+      .navbar h1 {
+        font-size: 1.2rem;
+      }
+      
+      .player-item {
+        padding: 6px 8px;
+      }
+      
+      .player-badges {
+        flex-wrap: wrap;
       }
     }
 
@@ -457,6 +512,7 @@
       padding: 8px 12px;
       border-radius: var(--border-radius-sm);
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       box-shadow: var(--shadow-sm);
       margin-bottom: 5px;
@@ -485,6 +541,7 @@
       margin-right: 10px;
       position: relative;
       overflow: hidden;
+      flex-shrink: 0;
     }
     
     .player-avatar img {
@@ -499,6 +556,30 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      max-width: calc(100% - 40px);
+    }
+    
+    .player-badges {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      width: 100%;
+      margin-top: 5px;
+    }
+    
+    .player-actions {
+      width: 100%;
+      margin-top: 5px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    
+    /* Botões pequenos para ações em cada jogador */
+    .btn-sm {
+      padding: 3px 6px;
+      font-size: 0.8rem;
+      border-radius: var(--border-radius-sm);
     }
     
     .player-badges {
@@ -1494,12 +1575,24 @@ function renderHostLobby(data){
   if (players.length === 0) {
     hostPlayersList.innerHTML = '<div style="text-align: center; color: #888;"><i class="fas fa-info-circle"></i> Nenhum jogador conectado ainda</div>';
   } else {
-    hostPlayersList.innerHTML = players.map((p, index) => `
-      <div class="player-item">
-        <div class="player-avatar">${p.name.charAt(0).toUpperCase()}</div>
-        <div class="player-name">${p.name}</div>
-      </div>
-    `).join('');
+    hostPlayersList.innerHTML = players.map((p, index) => {
+      let avatarContent = p.name.charAt(0).toUpperCase();
+      
+      // Usa foto do perfil se disponível
+      let avatarHtml = '';
+      if (p.photo) {
+        avatarHtml = `<img src="${p.photo}" alt="${p.name}" />`;
+      } else {
+        avatarHtml = avatarContent;
+      }
+      
+      return `
+        <div class="player-item">
+          <div class="player-avatar">${avatarHtml}</div>
+          <div class="player-name">${p.name}</div>
+        </div>
+      `;
+    }).join('');
   }
   
   // Ativar botão quando tiver jogadores
@@ -1584,8 +1677,10 @@ function renderHostGame(data){
       <div class="player-avatar" ${p.hasFingerPower ? 'style="background: var(--warning); color: var(--dark);"' : ''}>
         ${avatarHtml}
       </div>
-      <div class="player-name">${p.name}</div>
-      <div class="player-badges">`;
+      <div class="player-name">${p.name}</div>`;
+    
+    // Badges na linha abaixo para melhor visualização em telas pequenas
+    html += `<div class="player-badges">`;
     
     if (isCurrent) {
       html += `<span class="badge badge-turn"><i class="fas fa-play"></i> Vez</span>`;
@@ -1602,16 +1697,16 @@ function renderHostGame(data){
     html += `</div>`;
     
     // Adiciona opções do organizador para joker e poder do dedo
-    html += `<div class="player-actions" style="margin-top: 5px;">`;
+    html += `<div class="player-actions">`;
     
     if (p.jokers && p.jokers > 0) {
-      html += `<button class="btn-sm btn-info use-joker-host" data-player="${i}" style="padding: 3px 6px; font-size: 0.8rem;">
+      html += `<button class="btn-sm btn-info use-joker-host" data-player="${i}">
         <i class="fas fa-magic"></i> Usar Coringa
       </button>`;
     }
     
     if (p.hasFingerPower) {
-      html += `<button class="btn-sm btn-warning activate-finger-host" data-player="${i}" style="padding: 3px 6px; font-size: 0.8rem; margin-left: 5px;">
+      html += `<button class="btn-sm btn-warning activate-finger-host" data-player="${i}">
         <i class="fas fa-hand-point-up"></i> Ativar Poder
       </button>`;
     }
@@ -1997,8 +2092,10 @@ function updatePlayerView(gameData){
         <div class="player-avatar" ${pp.hasFingerPower ? 'style="background: var(--warning); color: var(--dark);"' : ''}>
           ${avatarHtml}
         </div>
-        <div class="player-name">${pp.name}</div>
-        <div class="player-badges">`;
+        <div class="player-name">${pp.name}</div>`;
+      
+      // Badges na linha abaixo para melhor visualização em telas pequenas
+      html += `<div class="player-badges">`;
       
       if (isCurrent) {
         html += `<span class="badge badge-turn"><i class="fas fa-play"></i> Vez</span>`;
@@ -2411,3 +2508,4 @@ function generateDeck(){
 </script>
 </body>
 </html>
+      
