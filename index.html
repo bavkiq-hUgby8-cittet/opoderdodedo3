@@ -514,6 +514,46 @@
       font-size: 0.9rem;
     }
 
+    /* Notificações */
+    #notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 1000;
+      display: none;
+      max-width: 90%;
+      animation: slideIn 0.3s ease forwards;
+    }
+
+    #notification.success {
+      background: var(--success);
+      color: white;
+    }
+
+    #notification.error {
+      background: var(--danger);
+      color: white;
+    }
+
+    #notification.warning {
+      background: var(--warning);
+      color: var(--dark);
+    }
+
+    #notification.info {
+      background: var(--primary);
+      color: white;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
     /* Responsividade */
     @media (max-width: 768px) {
       h1 { font-size: 1.8rem; }
@@ -640,6 +680,9 @@
 
 <body>
 <h1>O Poder do Dedo</h1>
+
+<!-- Notificação -->
+<div id="notification"></div>
 
 <!-- SELETOR DE MODO -->
 <div id="modeSelect" class="container">
@@ -842,28 +885,3 @@
 
 <!-- Overlay de Vídeo -->
 <div id="videoOverlay">
-  <video id="videoPreview" autoplay muted playsinline></video>
-  <div class="video-controls">
-    <button id="btnStartRecording" class="btn-success">Iniciar Gravação</button>
-    <button id="btnStopRecording" class="btn-danger" style="display:none;">Parar</button>
-    <button id="btnCloseVideoOverlay" class="btn-dark">Fechar</button>
-  </div>
-</div>
-
-<script>
-/* =========================================
-   1) CONFIG FIREBASE
-   ========================================= */
-const firebaseConfig = {
-  apiKey: "AIzaSyBQ5czr0wUqNxyqU9X_WHO3DrHOYEAPf7M",
-  authDomain: "opoderdodedo.firebaseapp.com",
-  databaseURL: "https://opoderdodedo-default-rtdb.firebaseio.com",
-  projectId: "opoderdodedo",
-  storageBucket: "opoderdodedo.firebasestorage.app",
-  messagingSenderId: "931089125837",
-  appId: "1:931089125837:web:fa22ae36bd206f28cf7484",
-  measurementId: "G-6YE1KQ0VQC"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const storage = firebase.storage();
