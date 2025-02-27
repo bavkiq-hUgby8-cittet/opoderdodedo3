@@ -1331,49 +1331,95 @@ btnHost.onclick = () => {
 /********** FUNÇÕES DE FOTO DO PERFIL **********/
 async function openPlayerCamera() {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-    cameraPreview.srcObject = stream;
-    cameraPreview.style.display = 'block';
-    photoPlaceholder.style.display = 'none';
-    btnOpenCamera.style.display = 'none';
-    btnCapturePhoto.style.display = 'inline-block';
-    localCameraStream = stream;
+    // Tenta primeiro a câmera frontal
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          facingMode: "user",
+          width: { ideal: 320 },
+          height: { ideal: 320 }
+        } 
+      });
+      cameraPreview.srcObject = stream;
+      cameraPreview.style.display = 'block';
+      photoPlaceholder.style.display = 'none';
+      btnOpenCamera.style.display = 'none';
+      btnCapturePhoto.style.display = 'inline-block';
+      localCameraStream = stream;
+    } catch (e) {
+      // Tenta qualquer câmera disponível
+      console.warn("Câmera frontal não disponível, tentando outra:", e);
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: true 
+      });
+      cameraPreview.srcObject = stream;
+      cameraPreview.style.display = 'block';
+      photoPlaceholder.style.display = 'none';
+      btnOpenCamera.style.display = 'none';
+      btnCapturePhoto.style.display = 'inline-block';
+      localCameraStream = stream;
+    }
   } catch (err) {
+    console.error("Erro ao acessar câmera:", err);
     alert("Não foi possível acessar a câmera: " + err.message);
+    // Continua sem câmera
+    btnOpenCamera.innerHTML = '<i class="fas fa-times"></i> Câmera indisponível';
+    btnOpenCamera.disabled = true;
   }
 }
 
 function capturePlayerPhoto() {
   if (!cameraPreview.srcObject) return;
   
-  const context = photoCanvas.getContext('2d');
-  photoCanvas.width = cameraPreview.videoWidth;
-  photoCanvas.height = cameraPreview.videoHeight;
-  
-  // Desenha um recorte circular
-  context.beginPath();
-  context.arc(photoCanvas.width / 2, photoCanvas.height / 2, 
-              Math.min(photoCanvas.width, photoCanvas.height) / 2, 0, 2 * Math.PI);
-  context.clip();
-  
-  // Desenha a imagem da câmera no canvas
-  context.drawImage(cameraPreview, 0, 0, photoCanvas.width, photoCanvas.height);
-  
-  // Converte para base64
-  playerPhoto = photoCanvas.toDataURL('image/jpeg');
-  
-  // Exibe a imagem capturada
-  capturedPhoto.src = playerPhoto;
-  capturedPhoto.style.display = 'block';
-  cameraPreview.style.display = 'none';
-  
-  // Atualiza botões
-  btnCapturePhoto.style.display = 'none';
-  btnRetakePhoto.style.display = 'inline-block';
-  
-  // Para a stream da câmera para economizar recursos
-  if (localCameraStream) {
-    localCameraStream.getTracks().forEach(track => track.stop());
+  try {
+    const context = photoCanvas.getContext('2d');
+    
+    // Ajusta as dimensões do canvas para corresponder às dimensões do vídeo
+    const videoWidth = cameraPreview.videoWidth;
+    const videoHeight = cameraPreview.videoHeight;
+    
+    if (!videoWidth || !videoHeight) {
+      console.warn("Dimensões de vídeo inválidas:", videoWidth, videoHeight);
+      return;
+    }
+    
+    photoCanvas.width = videoWidth;
+    photoCanvas.height = videoHeight;
+    
+    // Desenha um recorte circular
+    context.beginPath();
+    context.arc(photoCanvas.width / 2, photoCanvas.height / 2, 
+                Math.min(photoCanvas.width, photoCanvas.height) / 2, 0, 2 * Math.PI);
+    context.clip();
+    
+    // Desenha a imagem da câmera no canvas
+    context.drawImage(cameraPreview, 0, 0, photoCanvas.width, photoCanvas.height);
+    
+    // Converte para base64 (tamanho menor para economizar espaço)
+    playerPhoto = photoCanvas.toDataURL('image/jpeg', 0.7); // 70% de qualidade
+    
+    // Exibe a imagem capturada
+    capturedPhoto.src = playerPhoto;
+    capturedPhoto.style.display = 'block';
+    cameraPreview.style.display = 'none';
+    
+    // Atualiza botões
+    btnCapturePhoto.style.display = 'none';
+    btnRetakePhoto.style.display = 'inline-block';
+    
+    // Para a stream da câmera para economizar recursos
+    if (localCameraStream) {
+      localCameraStream.getTracks().forEach(track => track.stop());
+    }
+    
+    console.log("Foto capturada com sucesso");
+  } catch (e) {
+    console.error("Erro ao capturar foto:", e);
+    alert("Erro ao capturar foto. Tente novamente.");
+    
+    // Restaura estado original
+    btnCapturePhoto.style.display = 'inline-block';
+    btnRetakePhoto.style.display = 'none';
   }
 }
 
@@ -1929,17 +1975,62 @@ function sendDrinkAlert(playerIndex, gameData){
   db.ref(`games/${gameCode}/players/${pKey}/needsToDrink`).set(Date.now());
 }
 
-/********** MODO JOGADOR **********/
+/********** MODO JOGADOR VIA QR CODE **********/
+// Esta função é executada automaticamente ao carregar a página
 (function checkUrlForGameId(){
-  const params = new URLSearchParams(location.search);
-  if(params.has('gameId')){
-    const code = params.get('gameId');
-    if(code){
-      modeSelect.classList.add('hidden');
-      playerArea.classList.remove('hidden');
-      inputGameCodePlayer.value = code;
-      enterCodePlayer();
+  console.log("Verificando URL para gameId...");
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if(params.has('gameId')){
+      const code = params.get('gameId');
+      console.log("QR Code detectado:", code);
+      if(code && code.length > 0){
+        // O jogador escaneou o QR code, esconde a seleção de modo
+        modeSelect.classList.add('hidden');
+        // Mostra a área do jogador
+        playerArea.classList.remove('hidden');
+        // Oculta a tela de inserção de código (já temos o código)
+        playerStep1.classList.add('hidden');
+        // Mostra diretamente a tela de registro
+        playerRegister.classList.remove('hidden');
+        
+        // Define o gameCode globalmente
+        gameCode = code;
+        
+        console.log("Preparado para registro de jogador com código:", gameCode);
+        
+        // Verifica se o jogo existe e está ativo
+        db.ref(`games/${code}`).once('value')
+          .then(snap => {
+            if(!snap.exists()){
+              console.error("Jogo não encontrado");
+              alert("Partida não encontrada!");
+              modeSelect.classList.remove('hidden');
+              playerArea.classList.add('hidden');
+              return;
+            }
+            
+            const gameData = snap.val();
+            if (gameData.status === 'finished') {
+              console.error("Jogo encerrado");
+              alert("Esta partida já foi encerrada!");
+              modeSelect.classList.remove('hidden');
+              playerArea.classList.add('hidden');
+              return;
+            }
+            
+            console.log("Jogo verificado e ativo!");
+          })
+          .catch(error => {
+            console.error("Erro ao verificar jogo:", error);
+            alert("Erro ao verificar o jogo: " + error.message);
+            modeSelect.classList.remove('hidden');
+            playerArea.classList.add('hidden');
+          });
+      }
     }
+  } catch (error) {
+    console.error("Erro ao processar parâmetros da URL:", error);
   }
 })();
 
@@ -1953,29 +2044,35 @@ function enterCodePlayer(){
   btnEnterCodePlayer.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
   btnEnterCodePlayer.disabled = true;
   
-  db.ref(`games/${code}`).once('value', snap => {
-    btnEnterCodePlayer.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar na Partida';
-    btnEnterCodePlayer.disabled = false;
-    
-    if(!snap.exists()){
-      alert("Partida não encontrada!");
-      return;
-    }
-    
-    const gameData = snap.val();
-    if (gameData.status === 'finished') {
-      alert("Esta partida já foi encerrada!");
-      return;
-    }
-    
-    gameCode = code;
-    playerStep1.classList.add('hidden');
-    playerRegister.classList.remove('hidden');
-  }).catch(error => {
-    alert("Erro ao verificar código: " + error.message);
-    btnEnterCodePlayer.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar na Partida';
-    btnEnterCodePlayer.disabled = false;
-  });
+  db.ref(`games/${code}`).once('value')
+    .then(snap => {
+      btnEnterCodePlayer.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar na Partida';
+      btnEnterCodePlayer.disabled = false;
+      
+      if(!snap.exists()){
+        alert("Partida não encontrada!");
+        return;
+      }
+      
+      const gameData = snap.val();
+      if (gameData.status === 'finished') {
+        alert("Esta partida já foi encerrada!");
+        return;
+      }
+      
+      // Define o código do jogo e avança para a tela de registro
+      gameCode = code;
+      playerStep1.classList.add('hidden');
+      playerRegister.classList.remove('hidden');
+      
+      console.log("Código verificado, mostrou tela de registro");
+    })
+    .catch(error => {
+      console.error("Erro ao verificar código:", error);
+      alert("Erro ao verificar código: " + error.message);
+      btnEnterCodePlayer.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar na Partida';
+      btnEnterCodePlayer.disabled = false;
+    });
 }
 
 async function registerPlayerInGame(){
@@ -1989,6 +2086,14 @@ async function registerPlayerInGame(){
   btnJoinPlayerGame.disabled = true;
   
   try {
+    console.log("Tentando registrar jogador no jogo:", gameCode);
+    
+    // Verifica se o jogo ainda existe antes de registrar
+    const gameSnap = await db.ref(`games/${gameCode}`).once('value');
+    if (!gameSnap.exists()) {
+      throw new Error("Jogo não encontrado");
+    }
+    
     // Cria player
     const ref = db.ref(`games/${gameCode}/players`).push();
     myPlayerKey = ref.key;
@@ -2007,12 +2112,16 @@ async function registerPlayerInGame(){
       localStorage.setItem("opoderdedo_playerPhoto", playerPhoto);
     }
     
+    console.log("Registrando jogador:", name);
     await ref.set(playerData);
 
     localStorage.setItem("opoderdedo_gameId", gameCode);
     localStorage.setItem("opoderdedo_playerKey", myPlayerKey);
     localStorage.setItem("opoderdedo_playerName", name);
 
+    console.log("Jogador registrado com sucesso, escutando atualizações...");
+    
+    // Escuta atualizações do jogo para mostrar interface adequada
     db.ref(`games/${gameCode}`).on('value', s => {
       if(!s.exists()) return;
       updatePlayerView(s.val());
@@ -2021,6 +2130,7 @@ async function registerPlayerInGame(){
     playerRegister.classList.add('hidden');
     
   } catch (error) {
+    console.error("Erro ao registrar jogador:", error);
     alert("Erro ao entrar na partida: " + error.message);
     btnJoinPlayerGame.innerHTML = '<i class="fas fa-check-circle"></i> Confirmar e Entrar';
     btnJoinPlayerGame.disabled = false;
@@ -2508,4 +2618,3 @@ function generateDeck(){
 </script>
 </body>
 </html>
-      
