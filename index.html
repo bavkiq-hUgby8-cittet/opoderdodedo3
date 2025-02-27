@@ -859,10 +859,11 @@ const firebaseConfig = {
   authDomain: "opoderdodedo.firebaseapp.com",
   databaseURL: "https://opoderdodedo-default-rtdb.firebaseio.com",
   projectId: "opoderdodedo",
-  storageBucket: "opoderdodedo.appspot.com",
+  storageBucket: "opoderdodedo.firebasestorage.app",
   messagingSenderId: "931089125837",
   appId: "1:931089125837:web:fa22ae36bd206f28cf7484",
   measurementId: "G-6YE1KQ0VQC"
 };
 firebase.initializeApp(firebaseConfig);
-const db = firebase
+const db = firebase.database();
+const storage = firebase.storage();
