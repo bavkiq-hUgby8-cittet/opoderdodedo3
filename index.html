@@ -1,5 +1,15 @@
-function renderCard(rank, suit){
-  if(rank === 'Joker'){
+/* QR CODE */
+    .qr-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 15px 0;
+      padding: 15px;
+      background: white;
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-sm);
+    }function renderCard(rank, suit) {
+  if (rank === 'Joker') {
     return `
       <div class="card-front" style="background: linear-gradient(135deg, #ffd700 0%, #f9a825 100%);">
         <div class="card-center-symbol" style="font-size: 1.8rem; color: var(--dark);">
@@ -12,9 +22,9 @@ function renderCard(rank, suit){
   
   const isRed = (suit === '♥' || suit === '♦');
   const suitSymbol = suit === '♥' ? '♥️' : 
-                    suit === '♦' ? '♦️' : 
-                    suit === '♣' ? '♣️' : 
-                    suit === '♠' ? '♠️' : '';
+                     suit === '♦' ? '♦️' : 
+                     suit === '♣' ? '♣️' : 
+                     suit === '♠' ? '♠️' : '';
                     
   return `
     <div class="card-front">
@@ -199,49 +209,63 @@ function renderCard(rank, suit){
     }
     
     /* Responsive grid para mobile */
+    /* Mobile-specific fixes */
     @media (max-width: 768px) {
-      .game-grid {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto minmax(200px, 1fr) minmax(150px, auto) minmax(150px, auto) auto;
-        grid-template-areas: 
-          "header"
-          "center-panel"
-          "left-panel"
-          "right-panel"
-          "footer";
+      body, html {
+        width: 100%;
         height: 100%;
-        overflow-y: auto;
-      }
-      
-      .left-panel, .center-panel, .right-panel {
-        max-height: none;
-        overflow-y: auto;
-      }
-      
-      .center-panel {
-        height: 300px; /* Altura fixa para o painel central em mobile */
+        margin: 0;
+        padding: 0;
+        overflow: auto;
       }
       
       #mainContainer {
+        width: 100%;
         height: auto;
         min-height: 100vh;
-        overflow-y: auto;
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+        border-radius: 0;
       }
       
       #contentScroll {
+        padding: 5px;
         overflow-y: auto;
       }
       
-      .navbar h1 {
-        font-size: 1.2rem;
+      .section {
+        margin-bottom: 10px;
+        padding: 10px;
       }
       
-      .player-item {
-        padding: 6px 8px;
+      button {
+        padding: 12px 15px;
+        margin: 4px 0;
       }
       
-      .player-badges {
-        flex-wrap: wrap;
+      .game-grid {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+      }
+      
+      .left-panel, .right-panel, .center-panel {
+        width: 100%;
+        max-height: none;
+        overflow-y: visible;
+      }
+      
+      .center-panel {
+        order: 1;
+      }
+      
+      .left-panel {
+        order: 2;
+      }
+      
+      .right-panel {
+        order: 3;
       }
     }
 
@@ -605,17 +629,20 @@ function renderCard(rank, suit){
 
     /* CHAT */
     .chat-container {
-      margin-top: 15px;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
       border: 1px solid #e0e0e0;
       border-radius: var(--border-radius-md);
       overflow: hidden;
     }
     
     .chat-messages {
-      height: 150px;
+      flex: 1;
       overflow-y: auto;
       padding: 10px;
       background: #f9f9f9;
+      max-height: 150px;
     }
     
     .chat-input-group {
@@ -643,6 +670,7 @@ function renderCard(rank, suit){
       border-radius: 8px;
       box-shadow: var(--shadow-sm);
       animation: fadeIn 0.3s ease-in-out;
+      word-break: break-word;
     }
     
         /* MODO DE CLIQUE RÁPIDO */
@@ -738,16 +766,19 @@ function renderCard(rank, suit){
       animation: fadeIn 0.5s ease-in-out;
     }
     
-    /* QR CODE */
-    .qr-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 15px 0;
-      padding: 15px;
-      background: white;
-      border-radius: var(--border-radius-md);
-      box-shadow: var(--shadow-sm);
+    /* QR CODE LOBBY */
+    #qrCodeLobby {
+      margin: 0 auto;
+      background-color: white;
+      padding: 8px;
+      border-radius: 8px;
+      max-width: 100%;
+    }
+
+    #qrCodeLobby canvas {
+      width: 100%;
+      height: auto;
+      max-width: 180px;
     }
     
     .mode-card {
@@ -1036,30 +1067,7 @@ function renderCard(rank, suit){
             <input type="text" id="inputPlayerName" placeholder="Digite seu nome..." />
           </div>
           
-          <!-- Área para câmera e captura de foto -->
-          <div class="player-photo-container">
-            <div class="photo-preview">
-              <div id="photoPlaceholder">
-                <i class="fas fa-camera"></i>
-              </div>
-              <video id="cameraPreview" autoplay playsinline style="display: none;"></video>
-              <canvas id="photoCanvas" style="display: none;"></canvas>
-              <img id="capturedPhoto" style="display: none;" />
-            </div>
-            
-            <div class="photo-buttons">
-              <button id="btnOpenCamera" class="btn-info">
-                <i class="fas fa-camera"></i> Tirar Foto
-              </button>
-              <button id="btnCapturePhoto" class="btn-success" style="display: none;">
-                <i class="fas fa-camera-retro"></i> Capturar
-              </button>
-              <button id="btnRetakePhoto" class="btn-warning" style="display: none;">
-                <i class="fas fa-redo"></i> Nova Foto
-              </button>
-            </div>
-          </div>
-          
+          <!-- Remover toda a área de câmera e foto para evitar problemas -->
           <button id="btnJoinPlayerGame" class="btn-success btn-lg" style="margin-top: 15px;">
             <i class="fas fa-check-circle"></i> Confirmar e Entrar
           </button>
@@ -1284,14 +1292,14 @@ const playerChat = document.getElementById('playerChat');
 const playerChatInput = document.getElementById('playerChatInput');
 const btnPlayerSendChat = document.getElementById('btnPlayerSendChat');
 
-// Botões para foto do perfil
-const btnOpenCamera = document.getElementById('btnOpenCamera');
-const btnCapturePhoto = document.getElementById('btnCapturePhoto');
-const btnRetakePhoto = document.getElementById('btnRetakePhoto');
-const cameraPreview = document.getElementById('cameraPreview');
-const photoCanvas = document.getElementById('photoCanvas');
-const capturedPhoto = document.getElementById('capturedPhoto');
-const photoPlaceholder = document.getElementById('photoPlaceholder');
+// Remover referência a elementos de foto que não existem mais
+btnOpenCamera = null;
+btnCapturePhoto = null;
+btnRetakePhoto = null;
+cameraPreview = null;
+photoCanvas = null;
+capturedPhoto = null;
+photoPlaceholder = null;
 
 // Botão para novo baralho
 const btnNewDeck = document.getElementById('btnNewDeck');
@@ -1329,74 +1337,49 @@ btnHost.onclick = () => {
 };
 
 /********** FUNÇÕES DE FOTO DO PERFIL **********/
-async function openPlayerCamera() {
-  try {
-    // Tenta primeiro a câmera frontal
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-          facingMode: "user",
-          width: { ideal: 320 },
-          height: { ideal: 320 }
-        } 
-      });
-      cameraPreview.srcObject = stream;
-      cameraPreview.style.display = 'block';
-      photoPlaceholder.style.display = 'none';
-      btnOpenCamera.style.display = 'none';
-      btnCapturePhoto.style.display = 'inline-block';
-      localCameraStream = stream;
-    } catch (e) {
-      // Tenta qualquer câmera disponível
-      console.warn("Câmera frontal não disponível, tentando outra:", e);
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: true 
-      });
-      cameraPreview.srcObject = stream;
-      cameraPreview.style.display = 'block';
-      photoPlaceholder.style.display = 'none';
-      btnOpenCamera.style.display = 'none';
-      btnCapturePhoto.style.display = 'inline-block';
-      localCameraStream = stream;
-    }
-  } catch (err) {
-    console.error("Erro ao acessar câmera:", err);
-    alert("Não foi possível acessar a câmera: " + err.message);
-    // Continua sem câmera
-    btnOpenCamera.innerHTML = '<i class="fas fa-times"></i> Câmera indisponível';
-    btnOpenCamera.disabled = true;
-  }
+// Remover funções de câmera que não são mais necessárias
+/* function openPlayerCamera() {
+  // Removido para evitar problemas
 }
 
 function capturePlayerPhoto() {
-  if (!cameraPreview.srcObject) return;
+  // Removido para evitar problemas  
+}
+
+function retakePlayerPhoto() {
+  // Removido para evitar problemas
+} */
+
+function capturePlayerPhoto() {
+  console.log("Tentando capturar foto...");
+  if (!cameraPreview.srcObject) {
+    console.error("Sem stream de câmera para capturar foto");
+    return;
+  }
   
   try {
     const context = photoCanvas.getContext('2d');
     
     // Ajusta as dimensões do canvas para corresponder às dimensões do vídeo
-    const videoWidth = cameraPreview.videoWidth;
-    const videoHeight = cameraPreview.videoHeight;
+    const videoWidth = cameraPreview.videoWidth || 320;
+    const videoHeight = cameraPreview.videoHeight || 240;
     
-    if (!videoWidth || !videoHeight) {
-      console.warn("Dimensões de vídeo inválidas:", videoWidth, videoHeight);
-      return;
-    }
+    console.log("Dimensões do vídeo:", videoWidth, "x", videoHeight);
     
     photoCanvas.width = videoWidth;
     photoCanvas.height = videoHeight;
     
-    // Desenha um recorte circular
-    context.beginPath();
-    context.arc(photoCanvas.width / 2, photoCanvas.height / 2, 
-                Math.min(photoCanvas.width, photoCanvas.height) / 2, 0, 2 * Math.PI);
-    context.clip();
-    
-    // Desenha a imagem da câmera no canvas
+    // Desenha a imagem da câmera no canvas (sem recorte para evitar problemas)
     context.drawImage(cameraPreview, 0, 0, photoCanvas.width, photoCanvas.height);
     
     // Converte para base64 (tamanho menor para economizar espaço)
-    playerPhoto = photoCanvas.toDataURL('image/jpeg', 0.7); // 70% de qualidade
+    try {
+      playerPhoto = photoCanvas.toDataURL('image/jpeg', 0.7); // 70% de qualidade
+      console.log("Foto capturada com sucesso");
+    } catch (e) {
+      console.error("Erro ao converter canvas para dataURL:", e);
+      return;
+    }
     
     // Exibe a imagem capturada
     capturedPhoto.src = playerPhoto;
@@ -1411,15 +1394,18 @@ function capturePlayerPhoto() {
     if (localCameraStream) {
       localCameraStream.getTracks().forEach(track => track.stop());
     }
-    
-    console.log("Foto capturada com sucesso");
   } catch (e) {
     console.error("Erro ao capturar foto:", e);
-    alert("Erro ao capturar foto. Tente novamente.");
+    alert("Erro ao capturar foto. Tente novamente ou continue sem foto.");
     
-    // Restaura estado original
-    btnCapturePhoto.style.display = 'inline-block';
+    // Continuar sem foto
+    btnOpenCamera.style.display = 'inline-block';
+    btnCapturePhoto.style.display = 'none';
     btnRetakePhoto.style.display = 'none';
+    
+    if (localCameraStream) {
+      localCameraStream.getTracks().forEach(track => track.stop());
+    }
   }
 }
 
@@ -1668,8 +1654,14 @@ function startGameHost(){
     });
 }
 
-function renderHostGame(data){
-  const players = Object.values(data.players||{});
+/* Declare a variável gameData (necessária para referência nas funções do host) */
+let gameData = null;
+
+function renderHostGame(data) {
+  // Armazena os dados do jogo na variável global
+  gameData = data;
+  
+  const players = Object.values(data.players || {});
   const currPlayer = players[data.currentPlayerIndex];
   const currName = currPlayer?.name || '???';
   
@@ -2075,7 +2067,8 @@ function enterCodePlayer(){
     });
 }
 
-async function registerPlayerInGame(){
+// Simplificação da função de registro sem uso de câmera
+function registerPlayerInGame() {
   const name = inputPlayerName.value.trim();
   if(!name) {
     alert("Digite seu nome!");
@@ -2085,60 +2078,53 @@ async function registerPlayerInGame(){
   btnJoinPlayerGame.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Entrando...';
   btnJoinPlayerGame.disabled = true;
   
-  try {
-    console.log("Tentando registrar jogador no jogo:", gameCode);
-    
-    // Verifica se o jogo ainda existe antes de registrar
-    const gameSnap = await db.ref(`games/${gameCode}`).once('value');
-    if (!gameSnap.exists()) {
-      throw new Error("Jogo não encontrado");
-    }
-    
-    // Cria player
-    const ref = db.ref(`games/${gameCode}/players`).push();
-    myPlayerKey = ref.key;
-    
-    // Dados do jogador
-    const playerData = {
-      name, 
-      jokers: 0,
-      hasFingerPower: false
-    };
-    
-    // Adiciona foto se disponível
-    if (playerPhoto) {
-      playerData.photo = playerPhoto;
-      // Salva também no localStorage
-      localStorage.setItem("opoderdedo_playerPhoto", playerPhoto);
-    }
-    
-    console.log("Registrando jogador:", name);
-    await ref.set(playerData);
+  // Agora usamos uma abordagem mais simplificada e direta - primeiro verificamos se o jogo existe
+  db.ref(`games/${gameCode}`).once('value')
+    .then(function(gameSnap) {
+      if (!gameSnap.exists()) {
+        throw new Error("Jogo não encontrado");
+      }
+      
+      // Cria player
+      const ref = db.ref(`games/${gameCode}/players`).push();
+      myPlayerKey = ref.key;
+      
+      // Dados do jogador (sem foto)
+      const playerData = {
+        name, 
+        jokers: 0,
+        hasFingerPower: false
+      };
+      
+      // Registra o jogador
+      return ref.set(playerData);
+    })
+    .then(function() {
+      // Salva dados locais
+      localStorage.setItem("opoderdedo_gameId", gameCode);
+      localStorage.setItem("opoderdedo_playerKey", myPlayerKey);
+      localStorage.setItem("opoderdedo_playerName", name);
 
-    localStorage.setItem("opoderdedo_gameId", gameCode);
-    localStorage.setItem("opoderdedo_playerKey", myPlayerKey);
-    localStorage.setItem("opoderdedo_playerName", name);
+      // Escuta atualizações do jogo
+      db.ref(`games/${gameCode}`).on('value', function(s) {
+        if(!s.exists()) return;
+        updatePlayerView(s.val());
+      });
 
-    console.log("Jogador registrado com sucesso, escutando atualizações...");
-    
-    // Escuta atualizações do jogo para mostrar interface adequada
-    db.ref(`games/${gameCode}`).on('value', s => {
-      if(!s.exists()) return;
-      updatePlayerView(s.val());
+      // Esconde a tela de registro
+      playerRegister.classList.add('hidden');
+    })
+    .catch(function(error) {
+      console.error("Erro ao registrar jogador:", error);
+      alert("Erro ao entrar na partida: " + error.message);
+      btnJoinPlayerGame.innerHTML = '<i class="fas fa-check-circle"></i> Confirmar e Entrar';
+      btnJoinPlayerGame.disabled = false;
     });
-
-    playerRegister.classList.add('hidden');
-    
-  } catch (error) {
-    console.error("Erro ao registrar jogador:", error);
-    alert("Erro ao entrar na partida: " + error.message);
-    btnJoinPlayerGame.innerHTML = '<i class="fas fa-check-circle"></i> Confirmar e Entrar';
-    btnJoinPlayerGame.disabled = false;
-  }
 }
 
-function updatePlayerView(gameData){
-  if(gameData.status === 'lobby'){
+// Função de atualização da interface do jogador simplificada (sem referências a fotos)
+function updatePlayerView(gameData) {
+  if(gameData.status === 'lobby') {
     playerLobby.classList.remove('hidden');
     playerGame.classList.add('hidden');
     
@@ -2147,32 +2133,20 @@ function updatePlayerView(gameData){
     if (players.length === 0) {
       playerLobbyList.innerHTML = '<div style="text-align: center; color: #888;"><i class="fas fa-info-circle"></i> Nenhum outro jogador conectado</div>';
     } else {
-      playerLobbyList.innerHTML = players.map(p => {
-        let avatarContent = p.name.charAt(0).toUpperCase();
-        
-        // Usa foto do perfil se disponível
-        let avatarHtml = '';
-        if (p.photo) {
-          avatarHtml = `<img src="${p.photo}" alt="${p.name}" />`;
-        } else {
-          avatarHtml = avatarContent;
-        }
-        
-        return `
-          <div class="player-item">
-            <div class="player-avatar">${avatarHtml}</div>
-            <div class="player-name">${p.name}</div>
-          </div>
-        `;
-      }).join('');
+      playerLobbyList.innerHTML = players.map(p => `
+        <div class="player-item">
+          <div class="player-avatar">${p.name.charAt(0).toUpperCase()}</div>
+          <div class="player-name">${p.name}</div>
+        </div>
+      `).join('');
     }
   }
-  else if(gameData.status === 'ongoing'){
+  else if(gameData.status === 'ongoing') {
     playerLobby.classList.add('hidden');
     playerGame.classList.remove('hidden');
 
     const pObj = gameData.players?.[myPlayerKey];
-    if(!pObj){
+    if(!pObj) {
       playerStatusPanel.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Você não está no jogo!';
       playerStatusPanel.classList.remove('hidden');
       return;
@@ -2188,19 +2162,11 @@ function updatePlayerView(gameData){
     
     playerListStatus.innerHTML = players.map((pp, i) => {
       const isCurrent = (i === gameData.currentPlayerIndex);
-      let avatarContent = pp.name.charAt(0).toUpperCase();
-      
-      // Usa foto do perfil se disponível
-      let avatarHtml = '';
-      if (pp.photo) {
-        avatarHtml = `<img src="${pp.photo}" alt="${pp.name}" />`;
-      } else {
-        avatarHtml = avatarContent;
-      }
+      const avatarLetter = pp.name.charAt(0).toUpperCase();
       
       let html = `<div class="player-item ${isCurrent ? 'current' : ''} ${pp.hasFingerPower ? 'finger-power' : ''}">
         <div class="player-avatar" ${pp.hasFingerPower ? 'style="background: var(--warning); color: var(--dark);"' : ''}>
-          ${avatarHtml}
+          ${avatarLetter}
         </div>
         <div class="player-name">${pp.name}</div>`;
       
@@ -2233,7 +2199,7 @@ function updatePlayerView(gameData){
     const curIdx = gameData.currentPlayerIndex;
     const curKey = allKeys[curIdx];
     
-    if(curKey === myPlayerKey){
+    if(curKey === myPlayerKey) {
       // é minha vez
       playerStatusPanel.innerHTML = '<i class="fas fa-user-clock"></i> É A SUA VEZ!';
       playerStatusPanel.style.color = 'var(--success)';
@@ -2253,14 +2219,14 @@ function updatePlayerView(gameData){
     }
 
     // Carta Atual
-    if(gameData.currentCard){
+    if(gameData.currentCard) {
       currentCardPlayer.innerHTML = renderCard(gameData.currentCard.rank, gameData.currentCard.suit);
     } else {
       currentCardPlayer.innerHTML = `<div style="text-align: center; color: #888; margin: 20px 0;"><i class="fas fa-info-circle"></i> Nenhuma carta jogada ainda</div>`;
     }
 
     // Regras
-    if(gameData.rules && gameData.rules.length > 0){
+    if(gameData.rules && gameData.rules.length > 0) {
       playerRules.innerHTML = gameData.rules.map(r => `<div class="rule-item">${r}</div>`).join('');
     } else {
       playerRules.innerHTML = `<div style="text-align: center; color: #888; padding: 10px;"><i class="fas fa-info-circle"></i> Nenhuma regra definida</div>`;
@@ -2291,11 +2257,11 @@ function updatePlayerView(gameData){
 
     // Finger Power Global
     const fp = gameData.fingerPower || {};
-    if(fp.active){
+    if(fp.active) {
       fingerBox.classList.remove('hidden');
       const found = (fp.queue || []).find(x => x.playerKey === myPlayerKey);
       
-      if(found){
+      if(found) {
         btnFingerClick.disabled = true;
         btnFingerClick.innerHTML = '<i class="fas fa-check-circle"></i> Você já clicou!';
       } else {
@@ -2308,8 +2274,8 @@ function updatePlayerView(gameData){
       fingerBox.classList.add('hidden');
     }
 
-    // Painel de eventos - centralizado e destacado
-    if(gameData.logs && gameData.logs.length > 0){
+    // Painel de eventos
+    if(gameData.logs && gameData.logs.length > 0) {
       playerPainel.innerHTML = gameData.logs.map(l => `<div>${l}</div>`).join('');
       playerPainel.scrollTop = playerPainel.scrollHeight;
     } else {
@@ -2317,7 +2283,7 @@ function updatePlayerView(gameData){
     }
     
     // Chat
-    if(gameData.chat && gameData.chat.length > 0){
+    if(gameData.chat && gameData.chat.length > 0) {
       playerChat.innerHTML = gameData.chat.map(c => {
         const isHost = c.from === 'HOST';
         return `<div class="chat-message ${isHost ? 'host-message' : ''}">
@@ -2330,12 +2296,12 @@ function updatePlayerView(gameData){
     }
 
     // Needs to Drink?
-    if(pObj.needsToDrink){
+    if(pObj.needsToDrink) {
       alert("🍺 Você precisa beber!");
       db.ref(`games/${gameCode}/players/${myPlayerKey}/needsToDrink`).remove();
     }
   }
-  else if(gameData.status === 'finished'){
+  else if(gameData.status === 'finished') {
     alert("Esta partida foi encerrada!");
     clearPlayerCache();
     setTimeout(() => location.reload(), 1000); // Recarrega após o alerta
@@ -2615,6 +2581,22 @@ function generateDeck(){
   
   return deck;
 }
-</script>
+  <!-- Document Body -->
+  <script>
+    /* FUNÇÃO PARA LIMPAR CÓDIGO DA CARTA DO DOM */
+function limparElementosDeTexto() {
+  // Remove qualquer texto que possa estar aparecendo incorretamente na página
+  const elementos = document.querySelectorAll("body > *:not(#mainContainer):not(script)");
+  for (let i = 0; i < elementos.length; i++) {
+    elementos[i].remove();
+  }
+}
+
+// Executar a limpeza quando o documento estiver completamente carregado
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("Verificando e limpando elementos de texto incorretos...");
+  limparElementosDeTexto();
+});
+  </script>
 </body>
 </html>
