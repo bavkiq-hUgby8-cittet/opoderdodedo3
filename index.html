@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>O Poder do Dedo - Revisado</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Firebase (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-storage-compat.js"></script>
+
+  <!-- QRCode lib -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style>
+    /* Layout básico, responsivo */
+    * {
+      margin: 0; padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: #fafafa;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1, h2, h3, h4 {
+      text-align: center;
+      margin-bottom: 10px;
+      color: #444;
+    }
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 4px;
+      margin: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.2s;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-dark { background: #555; color: #fff; }
+    .btn-primary { background: #007BFF; color: #fff; }
+    .btn-success { background: #28a745; color: #fff; }
+    .btn-danger { background: #dc3545; color: #fff; }
+    .btn-warning { background: #ffc107; color: #212529; }
+    .btn-info { background: #17a2b8; color: #fff; }
+
+    .container {
+      width: 95%;
+      max-width: 1200px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .hidden { display: none !important; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .status-panel {
+      background: #e7f3ff;
+      border: 1px solid #bee0ff;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      text-align: center;
+      font-weight: bold;
+      color: #007BFF;
+    }
+    .painel, .chat-box {
+      background: #f9f9f9;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 8px;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: #333;
+    }
+    .rules-list {
+      background: #f9f9f9; border: 1px solid #ccc; border-radius: 4px;
+      padding: 8px; min-height: 40px;
+    }
+    .rule-item {
+      background: #eee;
+      margin: 4px 0;
+      padding: 4px;
+      border-radius: 3px;
+    }
+    .finger-box {
+      background: #ffebb7;
+      border: 1px solid #ffcf52;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+    }
+    .player-photo {
+      width: 40px; height: 40px;
+      object-fit: cover; border-radius: 50%;
+      vertical-align: middle; margin-right:5px;
+    }
+    .card-front {
+      width: 100px; height: 150px;
+      background: #fff;
+      position: relative;
+      color: #000;
+      border: 2px solid #000;
+      border-radius: 6px;
+      margin: 5px auto;
+    }
+    .card-rank-suit {
+      position: absolute; top:8px; left:8px;
+      font-size:1.4rem; font-weight:bold;
+    }
+    .red { color: red; }
+    .black { color: #000; }
+    .card-back {
+      width: 15px; height: 25px;
+      background: #bbb; border-radius:3px;
+      display: inline-block; margin:2px;
+    }
+    #deckView, #deckViewPlayer {
+      display: flex; flex-wrap: wrap;
+      max-width:80px; margin-top:5px;
+    }
+    #videoOverlay {
+      position: fixed; top:0; left:0;
+      width:100%; height:100%;
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      display: none;
+      flex-direction: column; align-items:center; justify-content:center;
+      z-index:9999; padding:10px;
+    }
+    video { background:#000; max-width:90vw; max-height:60vh; }
+  </style>
+</head>
+
+<body>
+<h1>O Poder do Dedo</h1>
+
+<!-- SELETOR DE MODO -->
+<div id="modeSelect" class="container">
+  <h2>Você é o Organizador ou Jogador?</h2>
+  <button id="btnHost" class="btn-dark">Organizador</button>
+  <button id="btnPlayer" class="btn-primary">Jogador</button>
+</div>
+
+<!-- HOST AREA -->
+<div id="hostArea" class="container hidden">
+  <h2>Organizador</h2>
+
+  <div id="hostStep1">
+    <button id="btnCreateGame" class="btn-success">Criar Nova Partida</button>
+    <p style="margin:10px 0; text-align:center;">Ou entre numa partida existente:</p>
+    <div class="row" style="justify-content:center;">
+      <input type="text" id="inputGameCodeHost" placeholder="Código da Partida" style="flex:1;"/>
+      <button id="btnJoinGameHost" class="btn-info">Entrar</button>
+    </div>
+  </div>
+
+  <div id="hostLobby" class="hidden">
+    <h3>Código da Partida: <span id="hostGameCode"></span></h3>
+    <div class="row" style="justify-content:center;margin:10px 0;">
+      <div id="qrCodeLobby"></div>
+    </div>
+    <p id="hostLinkInfo" style="text-align:center;"></p>
+
+    <h4>Jogadores Conectados</h4>
+    <div id="hostPlayersList"></div>
+
+    <button id="btnStartGame" class="btn-primary">Iniciar Partida</button>
+  </div>
+
+  <div id="hostGame" class="hidden">
+    <div id="hostStatusPanel" class="status-panel"></div>
+
+    <div style="text-align:center; margin-bottom:10px;">
+      <div id="qrCodeGame"></div>
+    </div>
+
+    <h4>Carta Atual</h4>
+    <div id="currentCardHost">Nenhuma</div>
+    <button id="btnDrawCard" class="btn-warning">&#x1F0CF; Puxar Carta</button>
+
+    <h4>Baralho</h4>
+    <div id="deckCount"></div>
+    <div id="deckView"></div>
+
+    <h4>Regras Ativas</h4>
+    <div id="hostRules" class="rules-list"></div>
+
+    <h4>Jogadores</h4>
+    <div id="hostPlayersStatus"></div>
+
+    <h4>Painel (Eventos)</h4>
+    <div id="hostPainel" class="painel"></div>
+
+    <h4>Chat</h4>
+    <div class="chat-box" id="hostChat"></div>
+    <div class="row" style="justify-content:center;">
+      <input type="text" id="hostChatInput" placeholder="Digite uma mensagem" style="flex:1;"/>
+      <button id="btnHostSendChat" class="btn-info">Enviar</button>
+    </div>
+
+    <button id="btnEndGame" class="btn-danger" style="margin-top:10px;">Encerrar Partida</button>
+  </div>
+</div>
+
+<!-- PLAYER AREA -->
+<div id="playerArea" class="container hidden">
+  <h2>Jogador</h2>
+
+  <div id="playerStep1">
+    <div class="row" style="justify-content:center;">
+      <input type="text" id="inputGameCodePlayer" placeholder="Código da Partida" style="flex:1;"/>
+      <button id="btnEnterCodePlayer" class="btn-info">Entrar</button>
+    </div>
+    <p style="margin:10px 0; text-align:center;">ou use o link/QR code</p>
+  </div>
+
+  <div id="playerRegister" class="hidden">
+    <h3>Digite Seu Nome</h3>
+    <input type="text" id="inputPlayerName" placeholder="Seu nome" style="width:100%;"/>
+    <!-- Removido qualquer foto, agora só nome -->
+    <button id="btnJoinPlayerGame" class="btn-success" style="margin-top:10px;">Entrar na Partida</button>
+  </div>
+
+  <div id="playerLobby" class="hidden">
+    <h3>Aguardando Organizador iniciar...</h3>
+    <div id="playerLobbyList"></div>
+  </div>
+
+  <div id="playerGame" class="hidden">
+    <div id="playerStatusPanel" class="status-panel hidden"></div>
+
+    <div id="playerInfo" style="text-align:center; margin-bottom:10px;"></div>
+
+    <h4>Carta Atual</h4>
+    <div id="currentCardPlayer">Nenhuma</div>
+    <button id="btnDrawCardPlayer" class="btn-warning" style="display:none;">
+      &#x1F0CF; Puxar Carta
+    </button>
+
+    <h4>Baralho</h4>
+    <div id="deckCountPlayer"></div>
+    <div id="deckViewPlayer"></div>
+
+    <h4>Regras Ativas</h4>
+    <div id="playerRules" class="rules-list"></div>
+
+    <h4>Jogadores</h4>
+    <div id="playerListStatus"></div>
+
+    <div class="finger-box hidden" id="fingerBox">
+      <h4>Poder do Dedo Ativo!</h4>
+      <p>Clique <strong>AGORA</strong> para não ser o último!</p>
+      <button id="btnFingerClick" class="btn-danger">Clique Rápido!</button>
+      <div id="fingerQueue" style="margin-top:5px;"></div>
+    </div>
+
+    <div style="text-align:center;">
+      <button id="btnUseJoker" class="btn-info" style="display:none;">Usar Coringa</button>
+      <button id="btnActivateFinger" class="btn-warning" style="display:none;">Poder do Dedo (8)</button>
+      <button id="btnRecordVideo" class="btn-dark">Gravar Vídeo</button>
+    </div>
+
+    <!-- Overlay de Vídeo -->
+    <div id="videoOverlay">
+      <video id="videoPreview" autoplay muted playsinline></video>
+      <div style="margin-top:10px;">
+        <button id="btnStartRecording" class="btn-success">Iniciar</button>
+        <button id="btnStopRecording" class="btn-danger">Parar</button>
+        <button id="btnCloseVideoOverlay" class="btn-dark">Fechar</button>
+      </div>
+    </div>
+
+    <h4>Painel (Eventos)</h4>
+    <div id="playerPainel" class="painel"></div>
+
+    <h4>Chat</h4>
+    <div class="chat-box" id="playerChat"></div>
+    <div class="row" style="justify-content:center;">
+      <input type="text" id="playerChatInput" placeholder="Digite uma mensagem" style="flex:1;"/>
+      <button id="btnPlayerSendChat" class="btn-info">Enviar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================
+   1) CONFIG FIREBASE
+   ========================================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyBQ5czr0wUqNxyqU9X_WHO3DrHOYEAPf7M",
+  authDomain: "opoderdodedo.firebaseapp.com",
+  databaseURL: "https://opoderdodedo-default-rtdb.firebaseio.com",
+  projectId: "opoderdodedo",
+  storageBucket: "opoderdodedo.appspot.com", // Correção: storageBucket estava incorreto
+  messagingSenderId: "931089125837",
+  appId: "1:931089125837:web:fa22ae36bd206f28cf7484",
+  measurementId: "G-6YE1KQ0VQC"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+/* =========================================
+   2) ELEMENTOS E VARS
+   ========================================= */
+const modeSelect = document.getElementById('modeSelect');
+const btnHost = document.getElementById('btnHost');
+const btnPlayer = document.getElementById('btnPlayer');
+
+// Host
+const hostArea = document.getElementById('hostArea');
+const hostStep1 = document.getElementById('hostStep1');
+const btnCreateGame = document.getElementById('btnCreateGame');
+const inputGameCodeHost = document.getElementById('inputGameCodeHost');
+const btnJoinGameHost = document.getElementById('btnJoinGameHost');
+const hostLobby = document.getElementById('hostLobby');
+const hostGame = document.getElementById('hostGame');
+const hostGameCode = document.getElementById('hostGameCode');
+const qrCodeLobby = document.getElementById('qrCodeLobby');
+const qrCodeGame = document.getElementById('qrCodeGame');
+const hostLinkInfo = document.getElementById('hostLinkInfo');
+const hostPlayersList = document.getElementById('hostPlayersList');
+const btnStartGame = document.getElementById('btnStartGame');
+const deckCount = document.getElementById('deckCount');
+const deckView = document.getElementById('deckView');
+const currentCardHost = document.getElementById('currentCardHost');
+const btnDrawCard = document.getElementById('btnDrawCard');
+const hostRules = document.getElementById('hostRules');
+const hostPlayersStatus = document.getElementById('hostPlayersStatus');
+const btnEndGame = document.getElementById('btnEndGame');
+const hostChat = document.getElementById('hostChat');
+const hostChatInput = document.getElementById('hostChatInput');
+const btnHostSendChat = document.getElementById('btnHostSendChat');
+const hostStatusPanel = document.getElementById('hostStatusPanel');
+const hostPainel = document.getElementById('hostPainel');
+
+// Player
+const playerArea = document.getElementById('playerArea');
+const playerStep1 = document.getElementById('playerStep1');
+const inputGameCodePlayer = document.getElementById('inputGameCodePlayer');
+const btnEnterCodePlayer = document.getElementById('btnEnterCodePlayer');
+
+const playerRegister = document.getElementById('playerRegister');
+const inputPlayerName = document.getElementById('inputPlayerName');
+const btnJoinPlayerGame = document.getElementById('btnJoinPlayerGame');
+
+const playerLobby = document.getElementById('playerLobby');
+const playerLobbyList = document.getElementById('playerLobbyList');
+const playerGame = document.getElementById('playerGame');
+const playerInfo = document.getElementById('playerInfo');
+const currentCardPlayer = document.getElementById('currentCardPlayer');
+const btnDrawCardPlayer = document.getElementById('btnDrawCardPlayer');
+const playerRules = document.getElementById('playerRules');
+const fingerBox = document.getElementById('fingerBox');
+const btnFingerClick = document.getElementById('btnFingerClick');
+const fingerQueue = document.getElementById('fingerQueue');
+const btnUseJoker = document.getElementById('btnUseJoker');
+const btnActivateFinger = document.getElementById('btnActivateFinger');
+const btnRecordVideo = document.getElementById('btnRecordVideo');
+const videoOverlay = document.getElementById('videoOverlay');
+const playerPainel = document.getElementById('playerPainel');
+const playerChat = document.getElementById('playerChat');
+const playerChatInput = document.getElementById('playerChatInput');
+const btnPlayerSendChat = document.getElementById('btnPlayerSendChat');
+const playerStatusPanel = document.getElementById('playerStatusPanel');
+
+const deckCountPlayer = document.getElementById('deckCountPlayer');
+const deckViewPlayer = document.getElementById('deckViewPlayer');
+const playerListStatus = document.getElementById('playerListStatus');
+
+// Elementos para o vídeo
+const videoPreview = document.getElementById('videoPreview');
+const btnStartRecording = document.getElementById('btnStartRecording');
+const btnStopRecording = document.getElementById('btnStopRecording');
+const btnCloseVideoOverlay = document.getElementById('btnCloseVideoOverlay');
+
+// Vars
+let gameCode = null;
+let myPlayerKey = null;
+let localCameraStream = null;
+let mediaRecorder = null;
+let recordedChunks = [];
+
+/* =========================================
+   3) EVENTOS
+   ========================================= */
+btnHost.onclick = () => {
+  modeSelect.classList.add('hidden');
+  hostArea.classList.remove('hidden');
+};
+btnPlayer.onclick = () => {
+  modeSelect.classList.add('hidden');
+  playerArea.classList.remove('hidden');
+};
+
+// Host
+btnCreateGame.onclick = createGameAsHost;
+btnJoinGameHost.onclick = joinGameAsHost;
+btnStartGame.onclick = startGameHost;
+btnDrawCard.onclick = drawCardHost;
+btnEndGame.onclick = endGameHost;
+btnHostSendChat.onclick = sendChatAsHost;
+
+// Eventos de pressionar Enter nos inputs
+hostChatInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') sendChatAsHost();
+});
+
+// Player
+btnEnterCodePlayer.onclick = enterCodePlayer;
+btnJoinPlayerGame.onclick = registerPlayerInGame;
+btnDrawCardPlayer.onclick = drawCardPlayer;
+btnUseJoker.onclick = useJokerPlayer;
+btnActivateFinger.onclick = activateFingerPower;
+btnFingerClick.onclick = fingerClick;
+btnRecordVideo.onclick = () => videoOverlay.style.display='flex';
+btnCloseVideoOverlay.onclick = closeVideoOverlay;
+btnPlayerSendChat.onclick = sendChatAsPlayer;
+btnStartRecording.onclick = startVideoRecording;
+btnStopRecording.onclick = stopVideoRecording;
+
+// Eventos de pressionar Enter nos inputs
+playerChatInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') sendChatAsPlayer();
+});
+inputGameCodePlayer.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') enterCodePlayer();
+});
+inputPlayerName.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') registerPlayerInGame();
+});
+
+/* =========================================
+   4) CHECK LOCAL STORAGE DO PLAYER
+   ========================================= */
+(async function checkLocalStoragePlayer() {
+  const savedGameId = localStorage.getItem("opoderdedo_gameId");
+  const savedPlayerKey = localStorage.getItem("opoderdedo_playerKey");
+  if (savedGameId && savedPlayerKey) {
+    try {
+      // Verifica no DB se existe
+      const snap = await db.ref(`games/${savedGameId}/players/${savedPlayerKey}`).once('value');
+      if (snap.exists()) {
+        // Reconecta
+        gameCode = savedGameId;
+        myPlayerKey = savedPlayerKey;
+        db.ref(`games/${gameCode}`).on('value', s => {
+          if (!s.exists()) return;
+          updatePlayerView(s.val());
+        });
+        modeSelect.classList.add('hidden');
+        playerArea.classList.remove('hidden');
+        playerStep1.classList.add('hidden');
+        playerRegister.classList.add('hidden');
+      } else {
+        // limpar
+        localStorage.removeItem("opoderdedo_gameId");
+        localStorage.removeItem("opoderdedo_playerKey");
+      }
+    } catch (error) {
+      console.error("Erro ao verificar sessão salva:", error);
+      localStorage.removeItem("opoderdedo_gameId");
+      localStorage.removeItem("opoderdedo_playerKey");
+    }
+  }
+})();
+
+/* =========================================
+   5) FUNÇÕES DO HOST
+   ========================================= */
+async function createGameAsHost() {
+  try {
+    gameCode = generateGameCode();
+    const deck = generateDeck();
+    const initialData = {
+      status: 'lobby',
+      players: {},
+      deck,
+      currentCard: null,
+      currentPlayerIndex: 0,
+      direction: 1,
+      rules: [],
+      logs: [],
+      fingerPower: { active:false, owner:null, queue:[] },
+      chat: []
+    };
+    await db.ref(`games/${gameCode}`).set(initialData);
+
+    showHostLobby(gameCode);
+    subscribeHost(gameCode);
+  } catch (error) {
+    alert("Erro ao criar partida: " + error.message);
+    console.error("Erro ao criar partida:", error);
+  }
+}
+
+async function joinGameAsHost() {
+  const code = inputGameCodeHost.value.trim();
+  if (!code) return alert("Digite um código!");
+  
+  try {
+    const snap = await db.ref(`games/${code}`).once('value');
+    if (!snap.exists()) {
+      alert("Partida não encontrada!");
+      return;
+    }
+    gameCode = code;
+    showHostLobby(code);
+    subscribeHost(code);
+  } catch (error) {
+    alert("Erro ao entrar na partida: " + error.message);
+    console.error("Erro ao entrar na partida:", error);
+  }
+}
+
+function showHostLobby(code) {
+  hostStep1.classList.add('hidden');
+  hostLobby.classList.remove('hidden');
+  hostGameCode.textContent = code;
+  qrCodeLobby.innerHTML = '';
+  
+  // Gera o QR code com URL completa
+  const gameUrl = `${window.location.origin}${window.location.pathname}?gameId=${code}`;
+  new QRCode(qrCodeLobby, {
+    text: gameUrl,
+    width: 160,
+    height: 160
+  });
+  hostLinkInfo.textContent = `Link: ${gameUrl}`;
+}
+
+function subscribeHost(code) {
+  db.ref(`games/${code}`).on('value', snap => {
+    if (!snap.exists()) return;
+    const data = snap.val();
+    if (data.status==='lobby') {
+      renderHostLobby(data);
+    } else if (data.status==='ongoing') {
+      hostLobby.classList.add('hidden');
+      hostGame.classList.remove('hidden');
+      renderHostGame(data);
+    } else if (data.status==='finished') {
+      alert("Partida Encerrada!");
+      // Limpar listeners após partida encerrada
+      db.ref(`games/${code}`).off();
+    }
+  });
+}
+
+function renderHostLobby(data) {
+  const arr = Object.values(data.players||{});
+  hostPlayersList.innerHTML = arr.length > 0 ? 
+    arr.map(p => `<div>${p.name}</div>`).join('') : 
+    "<div>Nenhum jogador conectado</div>";
+  
+  // Habilita o botão de iniciar apenas se tiver jogadores
+  btnStartGame.disabled = arr.length === 0;
+}
+
+function startGameHost() {
+  try {
+    db.ref(`games/${gameCode}`).update({ status:'ongoing' });
+  } catch (error) {
+    alert("Erro ao iniciar partida: " + error.message);
+  }
+}
+
+function renderHostGame(data) {
+  const arr = Object.values(data.players||{});
+  const currentName = arr[data.currentPlayerIndex]?.name || '???';
+  hostStatusPanel.textContent = `É a vez de: ${currentName}`;
+
+  qrCodeGame.innerHTML = '';
+  const gameUrl = `${window.location.origin}${window.location.pathname}?gameId=${gameCode}`;
+  new QRCode(qrCodeGame, {
+    text: gameUrl,
+    width: 120, height:120
+  });
+
+  deckCount.textContent = `Restantes: ${data.deck ? data.deck.length : 0}`;
+  deckView.innerHTML = (data.deck||[]).map(()=>`<div class="card-back"></div>`).join('');
+
+  if (data.currentCard) {
+    currentCardHost.innerHTML = renderCard(data.currentCard.rank, data.currentCard.suit);
+  } else {
+    currentCardHost.textContent="Nenhuma";
+  }
+
+  if (data.rules && data.rules.length>0) {
+    hostRules.innerHTML = data.rules.map(r=>`<div class="rule-item">${r}</div>`).join('');
+  } else {
+    hostRules.innerHTML="<div>Nenhuma regra ativa</div>";
+  }
+
+  hostPlayersStatus.innerHTML = arr.map((p,i) => {
+    const isCurrent = (i===data.currentPlayerIndex)?' <span style="color:#28a745">(Vez)</span>':'';
+    const coringa = p.jokers>0? ` [Coringas: ${p.jokers}]`: '';
+    return `<div><strong>${p.name}</strong>${isCurrent}${coringa}</div>`;
+  }).join('');
+
+  if (data.logs) {
+    hostPainel.innerHTML = data.logs.map(l=>`<div>${l}</div>`).join('');
+    hostPainel.scrollTop = hostPainel.scrollHeight;
+  }
+  if (data.chat) {
+    hostChat.innerHTML = data.chat.map(c=>`<div><strong>${c.from}:</strong> ${c.text}</div>`).join('');
+    hostChat.scrollTop = hostChat.scrollHeight;
+  }
+  
+  // Desabilita o botão de puxar carta se o baralho estiver vazio
+  btnDrawCard.disabled = !data.deck || data.deck.length === 0;
+}
+
+async function drawCardHost() {
+  try {
+    const snap = await db.ref(`games/${gameCode}`).once('value');
+    const gameData = snap.val();
+    if (!gameData.deck || gameData.deck.length===0) {
+      addLog("Baralho acabou!");
+      return;
+    }
+    const card = gameData.deck[0];
+    const newDeck = gameData.deck.slice(1);
+    handleCardEffect(card, gameData);
+    await db.ref(`games/${gameCode}`).update({
+      deck:newDeck, currentCard:card
+    });
+  } catch (error) {
+    console.error("Erro ao puxar carta:", error);
+    alert("Erro ao puxar carta: " + error.message);
+  }
+}
+
+function endGameHost() {
+  if (confirm("Tem certeza que deseja encerrar a partida?")) {
+    try {
+      db.ref(`games/${gameCode}`).update({ status:'finished' });
+      
+      // Limpar os listeners após encerrar
+      db.ref(`games/${gameCode}`).off();
+      
+      // Voltar para a tela inicial
+      hostGame.classList.add('hidden');
+      hostStep1.classList.remove('hidden');
+      
+      // Limpar variáveis
+      gameCode = null;
+    } catch (error) {
+      console.error("Erro ao encerrar partida:", error);
+      alert("Erro ao encerrar partida: " + error.message);
+    }
+  }
+}
+
+function sendChatAsHost() {
+  const txt = hostChatInput.value.trim();
+  if(!txt)return;
+  hostChatInput.value='';
+  try {
+    db.ref(`games/${gameCode}/chat`).once('value', snap=>{
+      let arr = snap.val()||[];
+      arr.push({from:'HOST', text:txt, ts:Date.now()});
+      // Limitar o tamanho do chat para evitar exceder limites do Firebase
+      if (arr.length > 100) arr = arr.slice(-100);
+      db.ref(`games/${gameCode}/chat`).set(arr);
+    });
+  } catch (error) {
+    console.error("Erro ao enviar mensagem:", error);
+  }
+}
+
+/* =========================================
+   6) EFEITO DE CARTA
+   ========================================= */
+function handleCardEffect(card, gameData) {
+  try {
+    let logs = gameData.logs||[];
+    // Limitar tamanho dos logs para evitar exceder limites do Firebase
+    if (logs.length > 100) logs = logs.slice(-100);
+    
+    const arr = Object.values(gameData.players||{});
+    let idx = gameData.currentPlayerIndex;
+    let direction = gameData.direction;
+    let rules = gameData.rules||[];
+    const cName = arr[idx]?.name||'???';
+    logs.push(`${cName} puxou [${card.rank}${card.suit!=='Coringa'?card.suit:''}]`);
+
+    let passTurn = true;
+
+    switch(card.rank) {
+      case '4':
+        const newRule = prompt("Nova regra?");
+        if(newRule && newRule.trim() !== ""){
+          rules.push(newRule);
+          logs.push(`Regra adicionada: "${newRule}"`);
+        }
+        break;
+      case '6':
+        rules=[];
+        logs.push("Todas as regras foram quebradas!");
+        break;
+      case '8':
+        const pKey = Object.keys(gameData.players||{})[idx];
+        if(pKey){
+          db.ref(`games/${gameCode}/players/${pKey}/hasFingerPower`).set(true);
+          logs.push(`${cName} obteve o Poder do Dedo!`);
+        }
+        break;
