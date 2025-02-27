@@ -1,42 +1,4 @@
-/* QR CODE */
-    .qr-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 15px 0;
-      padding: 15px;
-      background: white;
-      border-radius: var(--border-radius-md);
-      box-shadow: var(--shadow-sm);
-    }function renderCard(rank, suit) {
-  if (rank === 'Joker') {
-    return `
-      <div class="card-front" style="background: linear-gradient(135deg, #ffd700 0%, #f9a825 100%);">
-        <div class="card-center-symbol" style="font-size: 1.8rem; color: var(--dark);">
-          <i class="fas fa-crown"></i><br>
-          <span style="font-size: 1rem;">CORINGA</span>
-        </div>
-      </div>
-    `;
-  }
-  
-  const isRed = (suit === '♥' || suit === '♦');
-  const suitSymbol = suit === '♥' ? '♥️' : 
-                     suit === '♦' ? '♦️' : 
-                     suit === '♣' ? '♣️' : 
-                     suit === '♠' ? '♠️' : '';
-                    
-  return `
-    <div class="card-front">
-      <div class="card-rank-suit ${isRed ? 'red' : 'black'}">
-        ${rank}${suitSymbol}
-      </div>
-      <div class="card-center-symbol ${isRed ? 'red' : 'black'}">
-        ${rank}<br>${suitSymbol}
-      </div>
-    </div>
-  `;
-}<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -121,10 +83,11 @@
     #mainContainer {
       width: 100%;
       height: 100vh; /* Altura total da viewport */
-      max-width: 100%; /* Usa toda a largura disponível */
+      max-width: 1920px;
       margin: 0 auto;
       background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
       border-radius: 0; /* Remove bordas arredondadas para usar tela completa */
+      box-shadow: var(--shadow-lg);
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -159,11 +122,11 @@
     /* Conteúdo principal com scroll */
     #contentScroll {
       flex: 1;
-      padding: 5px;
+      padding: 10px;
       display: grid;
       grid-template-columns: 1fr;
       grid-template-rows: 1fr;
-      gap: 5px;
+      gap: 10px;
       overflow: hidden;
     }
     
@@ -172,13 +135,13 @@
       display: grid;
       width: 100%;
       height: 100%;
-      grid-template-columns: minmax(250px, 1fr) minmax(300px, 2fr) minmax(250px, 1fr);
+      grid-template-columns: 1fr 2fr 1fr;
       grid-template-rows: auto 1fr auto;
       grid-template-areas: 
         "header header header"
         "left-panel center-panel right-panel"
         "footer footer footer";
-      gap: 5px;
+      gap: 10px;
     }
     
     .header-area {
@@ -188,20 +151,17 @@
     .left-panel {
       grid-area: left-panel;
       overflow-y: auto;
-      max-height: calc(100vh - 120px);
     }
     
     .center-panel {
       grid-area: center-panel;
       display: flex;
       flex-direction: column;
-      max-height: calc(100vh - 120px);
     }
     
     .right-panel {
       grid-area: right-panel;
       overflow-y: auto;
-      max-height: calc(100vh - 120px);
     }
     
     .footer-area {
@@ -209,63 +169,16 @@
     }
     
     /* Responsive grid para mobile */
-    /* Mobile-specific fixes */
     @media (max-width: 768px) {
-      body, html {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        overflow: auto;
-      }
-      
-      #mainContainer {
-        width: 100%;
-        height: auto;
-        min-height: 100vh;
-        max-width: 100%;
-        margin: 0;
-        padding: 0;
-        border-radius: 0;
-      }
-      
-      #contentScroll {
-        padding: 5px;
-        overflow-y: auto;
-      }
-      
-      .section {
-        margin-bottom: 10px;
-        padding: 10px;
-      }
-      
-      button {
-        padding: 12px 15px;
-        margin: 4px 0;
-      }
-      
       .game-grid {
-        display: flex;
-        flex-direction: column;
-        height: auto;
-      }
-      
-      .left-panel, .right-panel, .center-panel {
-        width: 100%;
-        max-height: none;
-        overflow-y: visible;
-      }
-      
-      .center-panel {
-        order: 1;
-      }
-      
-      .left-panel {
-        order: 2;
-      }
-      
-      .right-panel {
-        order: 3;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr auto auto;
+        grid-template-areas: 
+          "header"
+          "center-panel"
+          "left-panel"
+          "right-panel"
+          "footer";
       }
     }
 
@@ -438,11 +351,18 @@
       border-left: 3px solid var(--success);
     }
 
-    /* SEÇÃO DE ESCOLHA DE MODO */
-    .mode-selection {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
+    /* CARTAS E BARALHO */
+    .card-front {
+      width: 100px; 
+      height: 140px;
+      border: 2px solid #000;
+      border-radius: 8px;
+      background: var(--white);
+      margin: 5px auto;
+      position: relative;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition-normal);
+      transform-style: preserve-3d;
     }
     
     .card-front:hover {
@@ -530,26 +450,25 @@
       to { transform: scale(1.05); }
     }
 
-    /* PLAYER AVATAR */
+    /* PLAYERS LIST */
+    .players-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
     .player-item {
       background: #f5f5f5;
       padding: 8px 12px;
       border-radius: var(--border-radius-sm);
       display: flex;
-      flex-wrap: wrap;
       align-items: center;
       box-shadow: var(--shadow-sm);
-      margin-bottom: 5px;
     }
     
     .player-item.current {
       background: #e3f2fd;
       border-left: 3px solid var(--primary);
-    }
-    
-    .player-item.finger-power {
-      background: #fff8e1;
-      border-left: 3px solid var(--warning);
     }
     
     .player-avatar {
@@ -563,47 +482,11 @@
       color: white;
       font-weight: bold;
       margin-right: 10px;
-      position: relative;
-      overflow: hidden;
-      flex-shrink: 0;
-    }
-    
-    .player-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
     }
     
     .player-name {
       flex-grow: 1;
       font-weight: 500;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: calc(100% - 40px);
-    }
-    
-    .player-badges {
-      display: flex;
-      gap: 5px;
-      flex-wrap: wrap;
-      width: 100%;
-      margin-top: 5px;
-    }
-    
-    .player-actions {
-      width: 100%;
-      margin-top: 5px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-    }
-    
-    /* Botões pequenos para ações em cada jogador */
-    .btn-sm {
-      padding: 3px 6px;
-      font-size: 0.8rem;
-      border-radius: var(--border-radius-sm);
     }
     
     .player-badges {
@@ -629,20 +512,17 @@
 
     /* CHAT */
     .chat-container {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
+      margin-top: 15px;
       border: 1px solid #e0e0e0;
       border-radius: var(--border-radius-md);
       overflow: hidden;
     }
     
     .chat-messages {
-      flex: 1;
+      height: 150px;
       overflow-y: auto;
       padding: 10px;
       background: #f9f9f9;
-      max-height: 150px;
     }
     
     .chat-input-group {
@@ -670,17 +550,11 @@
       border-radius: 8px;
       box-shadow: var(--shadow-sm);
       animation: fadeIn 0.3s ease-in-out;
-      word-break: break-word;
     }
     
-        /* MODO DE CLIQUE RÁPIDO */
-    #btnFingerClick {
-      animation: grow 0.5s ease-in-out infinite alternate;
-    }
-    
-    @keyframes grow {
-      from { transform: scale(1); }
-      to { transform: scale(1.05); }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     
     .chat-message strong {
@@ -691,58 +565,6 @@
       color: var(--secondary-dark);
     }
 
-    /* PLAYER PHOTO CAPTURE */
-    .player-photo-container {
-      margin: 15px 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    
-    .photo-preview {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      overflow: hidden;
-      background-color: #f0f0f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 10px;
-      position: relative;
-      border: 3px solid var(--light);
-    }
-    
-    #photoPlaceholder {
-      font-size: 40px;
-      color: #aaa;
-    }
-    
-    #cameraPreview, #capturedPhoto {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .photo-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    
-    #videoOverlay h3 {
-      margin-bottom: 15px;
-      font-family: var(--font-heading);
-    }
-    
-    video {
-      background: #000; 
-      max-width: 90vw; 
-      max-height: 60vh;
-      border-radius: var(--border-radius-md);
-      box-shadow: var(--shadow-lg);
-    }
-    
     /* VIDEO OVERLAY */
     #videoOverlay {
       position: fixed; 
@@ -761,24 +583,41 @@
       backdrop-filter: blur(5px);
     }
     
+    #videoOverlay h3 {
+      margin-bottom: 15px;
+      font-family: var(--font-heading);
+    }
+    
+    video {
+      background: #000; 
+      max-width: 90vw; 
+      max-height: 60vh;
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    /* QR CODE */
+    .qr-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 15px 0;
+      padding: 15px;
+      background: white;
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-sm);
+    }
+    
     /* ANIMAÇÕES DE TRANSIÇÃO */
     .fade-in {
       animation: fadeIn 0.5s ease-in-out;
     }
     
-    /* QR CODE LOBBY */
-    #qrCodeLobby {
-      margin: 0 auto;
-      background-color: white;
-      padding: 8px;
-      border-radius: 8px;
-      max-width: 100%;
-    }
-
-    #qrCodeLobby canvas {
-      width: 100%;
-      height: auto;
-      max-width: 180px;
+    /* SEÇÃO DE ESCOLHA DE MODO */
+    .mode-selection {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
     }
     
     .mode-card {
@@ -985,14 +824,11 @@
                   <p style="margin-top: 5px; font-size: 0.8em; color: #666; text-align: center;">Escaneie para entrar</p>
                 </div>
                 
-                <div style="text-align: center; margin-top: 10px;">
-                  <button id="btnNewDeck" class="btn-primary" style="display: none;">
-                    <i class="fas fa-sync-alt"></i> Novo Baralho
-                  </button>
-                </div>
                 <button id="btnEndGame" class="btn-danger" style="margin-top: 10px;">
                   <i class="fas fa-stop-circle"></i> Encerrar Partida
                 </button>
+              </div>
+            </div>
             
             <!-- Painel Central - Eventos do Jogo -->
             <div class="center-panel">
@@ -1067,8 +903,7 @@
             <input type="text" id="inputPlayerName" placeholder="Digite seu nome..." />
           </div>
           
-          <!-- Remover toda a área de câmera e foto para evitar problemas -->
-          <button id="btnJoinPlayerGame" class="btn-success btn-lg" style="margin-top: 15px;">
+          <button id="btnJoinPlayerGame" class="btn-success btn-lg">
             <i class="fas fa-check-circle"></i> Confirmar e Entrar
           </button>
         </div>
@@ -1292,17 +1127,11 @@ const playerChat = document.getElementById('playerChat');
 const playerChatInput = document.getElementById('playerChatInput');
 const btnPlayerSendChat = document.getElementById('btnPlayerSendChat');
 
-// Remover referência a elementos de foto que não existem mais
-btnOpenCamera = null;
-btnCapturePhoto = null;
-btnRetakePhoto = null;
-cameraPreview = null;
-photoCanvas = null;
-capturedPhoto = null;
-photoPlaceholder = null;
-
-// Botão para novo baralho
-const btnNewDeck = document.getElementById('btnNewDeck');
+const videoOverlay = document.getElementById('videoOverlay');
+const videoPreview = document.getElementById('videoPreview');
+const btnStartRecording = document.getElementById('btnStartRecording');
+const btnStopRecording = document.getElementById('btnStopRecording');
+const btnCloseVideoOverlay = document.getElementById('btnCloseVideoOverlay');
 
 /********** VARIÁVEIS GLOBAIS **********/
 let gameCode = null;
@@ -1310,13 +1139,6 @@ let myPlayerKey = null;
 let localCameraStream = null;
 let mediaRecorder = null;
 let recordedChunks = [];
-let playerPhoto = null; // Armazena a foto do jogador
-
-const videoOverlay = document.getElementById('videoOverlay');
-const videoPreview = document.getElementById('videoPreview');
-const btnStartRecording = document.getElementById('btnStartRecording');
-const btnStopRecording = document.getElementById('btnStopRecording');
-const btnCloseVideoOverlay = document.getElementById('btnCloseVideoOverlay');
 
 /********** EVENTOS BÁSICOS **********/
 // Modo de seleção com cliques nos cards também
@@ -1336,85 +1158,10 @@ btnHost.onclick = () => {
   hostArea.classList.remove('hidden');
 };
 
-/********** FUNÇÕES DE FOTO DO PERFIL **********/
-// Remover funções de câmera que não são mais necessárias
-/* function openPlayerCamera() {
-  // Removido para evitar problemas
-}
-
-function capturePlayerPhoto() {
-  // Removido para evitar problemas  
-}
-
-function retakePlayerPhoto() {
-  // Removido para evitar problemas
-} */
-
-function capturePlayerPhoto() {
-  console.log("Tentando capturar foto...");
-  if (!cameraPreview.srcObject) {
-    console.error("Sem stream de câmera para capturar foto");
-    return;
-  }
-  
-  try {
-    const context = photoCanvas.getContext('2d');
-    
-    // Ajusta as dimensões do canvas para corresponder às dimensões do vídeo
-    const videoWidth = cameraPreview.videoWidth || 320;
-    const videoHeight = cameraPreview.videoHeight || 240;
-    
-    console.log("Dimensões do vídeo:", videoWidth, "x", videoHeight);
-    
-    photoCanvas.width = videoWidth;
-    photoCanvas.height = videoHeight;
-    
-    // Desenha a imagem da câmera no canvas (sem recorte para evitar problemas)
-    context.drawImage(cameraPreview, 0, 0, photoCanvas.width, photoCanvas.height);
-    
-    // Converte para base64 (tamanho menor para economizar espaço)
-    try {
-      playerPhoto = photoCanvas.toDataURL('image/jpeg', 0.7); // 70% de qualidade
-      console.log("Foto capturada com sucesso");
-    } catch (e) {
-      console.error("Erro ao converter canvas para dataURL:", e);
-      return;
-    }
-    
-    // Exibe a imagem capturada
-    capturedPhoto.src = playerPhoto;
-    capturedPhoto.style.display = 'block';
-    cameraPreview.style.display = 'none';
-    
-    // Atualiza botões
-    btnCapturePhoto.style.display = 'none';
-    btnRetakePhoto.style.display = 'inline-block';
-    
-    // Para a stream da câmera para economizar recursos
-    if (localCameraStream) {
-      localCameraStream.getTracks().forEach(track => track.stop());
-    }
-  } catch (e) {
-    console.error("Erro ao capturar foto:", e);
-    alert("Erro ao capturar foto. Tente novamente ou continue sem foto.");
-    
-    // Continuar sem foto
-    btnOpenCamera.style.display = 'inline-block';
-    btnCapturePhoto.style.display = 'none';
-    btnRetakePhoto.style.display = 'none';
-    
-    if (localCameraStream) {
-      localCameraStream.getTracks().forEach(track => track.stop());
-    }
-  }
-}
-
-function retakePlayerPhoto() {
-  capturedPhoto.style.display = 'none';
-  btnRetakePhoto.style.display = 'none';
-  btnOpenCamera.style.display = 'inline-block';
-  playerPhoto = null;
-}
+btnPlayer.onclick = () => {
+  modeSelect.classList.add('hidden');
+  playerArea.classList.remove('hidden');
+};
 
 // Host
 btnCreateGame.onclick = createGameAsHost;
@@ -1478,38 +1225,24 @@ inputPlayerName.addEventListener('keypress', (e) => {
     // Verifica no DB
     const snap = await db.ref(`games/${savedId}/players/${savedKey}`).once('value');
     if(snap.exists()){
-      // Verifica se a partida ainda está ativa
-      const gameSnap = await db.ref(`games/${savedId}`).once('value');
-      if(gameSnap.exists() && gameSnap.val().status !== 'finished'){
-        // Reconectar
-        gameCode = savedId;
-        myPlayerKey = savedKey;
-        db.ref(`games/${gameCode}`).on('value', s=>{
-          if(!s.exists())return;
-          updatePlayerView(s.val());
-        });
-        // Ajusta telas
-        modeSelect.classList.add('hidden');
-        playerArea.classList.remove('hidden');
-        playerStep1.classList.add('hidden');
-        playerRegister.classList.add('hidden');
-      } else {
-        // Limpa dados se partida finalizada
-        clearPlayerCache();
-      }
+      // Reconectar
+      gameCode = savedId;
+      myPlayerKey = savedKey;
+      db.ref(`games/${gameCode}`).on('value', s=>{
+        if(!s.exists())return;
+        updatePlayerView(s.val());
+      });
+      // Ajusta telas
+      modeSelect.classList.add('hidden');
+      playerArea.classList.remove('hidden');
+      playerStep1.classList.add('hidden');
+      playerRegister.classList.add('hidden');
     } else {
-      clearPlayerCache();
+      localStorage.removeItem("opoderdedo_gameId");
+      localStorage.removeItem("opoderdedo_playerKey");
     }
   }
 })();
-
-// Função para limpar os dados do localStorage
-function clearPlayerCache() {
-  localStorage.removeItem("opoderdedo_gameId");
-  localStorage.removeItem("opoderdedo_playerKey");
-  localStorage.removeItem("opoderdedo_playerName");
-  localStorage.removeItem("opoderdedo_playerPhoto");
-}
 
 /********** FUNÇÕES DE HOST **********/
 async function createGameAsHost(){
@@ -1607,24 +1340,12 @@ function renderHostLobby(data){
   if (players.length === 0) {
     hostPlayersList.innerHTML = '<div style="text-align: center; color: #888;"><i class="fas fa-info-circle"></i> Nenhum jogador conectado ainda</div>';
   } else {
-    hostPlayersList.innerHTML = players.map((p, index) => {
-      let avatarContent = p.name.charAt(0).toUpperCase();
-      
-      // Usa foto do perfil se disponível
-      let avatarHtml = '';
-      if (p.photo) {
-        avatarHtml = `<img src="${p.photo}" alt="${p.name}" />`;
-      } else {
-        avatarHtml = avatarContent;
-      }
-      
-      return `
-        <div class="player-item">
-          <div class="player-avatar">${avatarHtml}</div>
-          <div class="player-name">${p.name}</div>
-        </div>
-      `;
-    }).join('');
+    hostPlayersList.innerHTML = players.map((p, index) => `
+      <div class="player-item">
+        <div class="player-avatar">${p.name.charAt(0).toUpperCase()}</div>
+        <div class="player-name">${p.name}</div>
+      </div>
+    `).join('');
   }
   
   // Ativar botão quando tiver jogadores
@@ -1654,14 +1375,8 @@ function startGameHost(){
     });
 }
 
-/* Declare a variável gameData (necessária para referência nas funções do host) */
-let gameData = null;
-
-function renderHostGame(data) {
-  // Armazena os dados do jogo na variável global
-  gameData = data;
-  
-  const players = Object.values(data.players || {});
+function renderHostGame(data){
+  const players = Object.values(data.players||{});
   const currPlayer = players[data.currentPlayerIndex];
   const currName = currPlayer?.name || '???';
   
@@ -1678,13 +1393,6 @@ function renderHostGame(data) {
   deckCount.innerHTML = `<i class="fas fa-layer-group"></i> Cartas restantes: <strong>${remainingCards}</strong>`;
   
   deckView.innerHTML = (data.deck||[]).map(() => `<div class="card-back"></div>`).join('');
-  
-  // Mostrar botão de novo baralho quando estiver vazio
-  if (!data.deck || data.deck.length === 0) {
-    btnNewDeck.style.display = 'inline-block';
-  } else {
-    btnNewDeck.style.display = 'none';
-  }
 
   if(data.currentCard){
     currentCardHost.innerHTML = renderCard(data.currentCard.rank, data.currentCard.suit);
@@ -1701,24 +1409,11 @@ function renderHostGame(data) {
   // Lista de jogadores - destaque para quem tem poder do dedo
   hostPlayersStatus.innerHTML = players.map((p, i) => {
     const isCurrent = (i === data.currentPlayerIndex);
-    let avatarContent = p.name.charAt(0).toUpperCase();
-    
-    // Usa foto do perfil se disponível
-    let avatarHtml = '';
-    if (p.photo) {
-      avatarHtml = `<img src="${p.photo}" alt="${p.name}" />`;
-    } else {
-      avatarHtml = avatarContent;
-    }
-    
+    const avatarLetter = p.name.charAt(0).toUpperCase();
     let html = `<div class="player-item ${isCurrent ? 'current' : ''} ${p.hasFingerPower ? 'finger-power' : ''}">
-      <div class="player-avatar" ${p.hasFingerPower ? 'style="background: var(--warning); color: var(--dark);"' : ''}>
-        ${avatarHtml}
-      </div>
-      <div class="player-name">${p.name}</div>`;
-    
-    // Badges na linha abaixo para melhor visualização em telas pequenas
-    html += `<div class="player-badges">`;
+      <div class="player-avatar" ${p.hasFingerPower ? 'style="background: var(--warning); color: var(--dark);"' : ''}>${avatarLetter}</div>
+      <div class="player-name">${p.name}</div>
+      <div class="player-badges">`;
     
     if (isCurrent) {
       html += `<span class="badge badge-turn"><i class="fas fa-play"></i> Vez</span>`;
@@ -1732,41 +1427,9 @@ function renderHostGame(data) {
       html += `<span class="badge" style="background-color: var(--warning); color: var(--dark);"><i class="fas fa-hand-point-up"></i> Poder do Dedo</span>`;
     }
     
-    html += `</div>`;
-    
-    // Adiciona opções do organizador para joker e poder do dedo
-    html += `<div class="player-actions">`;
-    
-    if (p.jokers && p.jokers > 0) {
-      html += `<button class="btn-sm btn-info use-joker-host" data-player="${i}">
-        <i class="fas fa-magic"></i> Usar Coringa
-      </button>`;
-    }
-    
-    if (p.hasFingerPower) {
-      html += `<button class="btn-sm btn-warning activate-finger-host" data-player="${i}">
-        <i class="fas fa-hand-point-up"></i> Ativar Poder
-      </button>`;
-    }
-    
     html += `</div></div>`;
     return html;
   }).join('');
-  
-  // Adicionar event listeners para os botões de ação
-  document.querySelectorAll('.use-joker-host').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const playerIndex = this.getAttribute('data-player');
-      useJokerAsHost(playerIndex);
-    });
-  });
-  
-  document.querySelectorAll('.activate-finger-host').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const playerIndex = this.getAttribute('data-player');
-      activateFingerAsHost(playerIndex);
-    });
-  });
 
   // Painel de eventos - centralizado e destacado
   if(data.logs && data.logs.length > 0){
@@ -1967,62 +1630,17 @@ function sendDrinkAlert(playerIndex, gameData){
   db.ref(`games/${gameCode}/players/${pKey}/needsToDrink`).set(Date.now());
 }
 
-/********** MODO JOGADOR VIA QR CODE **********/
-// Esta função é executada automaticamente ao carregar a página
+/********** MODO JOGADOR **********/
 (function checkUrlForGameId(){
-  console.log("Verificando URL para gameId...");
-  try {
-    const params = new URLSearchParams(window.location.search);
-    if(params.has('gameId')){
-      const code = params.get('gameId');
-      console.log("QR Code detectado:", code);
-      if(code && code.length > 0){
-        // O jogador escaneou o QR code, esconde a seleção de modo
-        modeSelect.classList.add('hidden');
-        // Mostra a área do jogador
-        playerArea.classList.remove('hidden');
-        // Oculta a tela de inserção de código (já temos o código)
-        playerStep1.classList.add('hidden');
-        // Mostra diretamente a tela de registro
-        playerRegister.classList.remove('hidden');
-        
-        // Define o gameCode globalmente
-        gameCode = code;
-        
-        console.log("Preparado para registro de jogador com código:", gameCode);
-        
-        // Verifica se o jogo existe e está ativo
-        db.ref(`games/${code}`).once('value')
-          .then(snap => {
-            if(!snap.exists()){
-              console.error("Jogo não encontrado");
-              alert("Partida não encontrada!");
-              modeSelect.classList.remove('hidden');
-              playerArea.classList.add('hidden');
-              return;
-            }
-            
-            const gameData = snap.val();
-            if (gameData.status === 'finished') {
-              console.error("Jogo encerrado");
-              alert("Esta partida já foi encerrada!");
-              modeSelect.classList.remove('hidden');
-              playerArea.classList.add('hidden');
-              return;
-            }
-            
-            console.log("Jogo verificado e ativo!");
-          })
-          .catch(error => {
-            console.error("Erro ao verificar jogo:", error);
-            alert("Erro ao verificar o jogo: " + error.message);
-            modeSelect.classList.remove('hidden');
-            playerArea.classList.add('hidden');
-          });
-      }
+  const params = new URLSearchParams(location.search);
+  if(params.has('gameId')){
+    const code = params.get('gameId');
+    if(code){
+      modeSelect.classList.add('hidden');
+      playerArea.classList.remove('hidden');
+      inputGameCodePlayer.value = code;
+      enterCodePlayer();
     }
-  } catch (error) {
-    console.error("Erro ao processar parâmetros da URL:", error);
   }
 })();
 
@@ -2036,39 +1654,32 @@ function enterCodePlayer(){
   btnEnterCodePlayer.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
   btnEnterCodePlayer.disabled = true;
   
-  db.ref(`games/${code}`).once('value')
-    .then(snap => {
-      btnEnterCodePlayer.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar na Partida';
-      btnEnterCodePlayer.disabled = false;
-      
-      if(!snap.exists()){
-        alert("Partida não encontrada!");
-        return;
-      }
-      
-      const gameData = snap.val();
-      if (gameData.status === 'finished') {
-        alert("Esta partida já foi encerrada!");
-        return;
-      }
-      
-      // Define o código do jogo e avança para a tela de registro
-      gameCode = code;
-      playerStep1.classList.add('hidden');
-      playerRegister.classList.remove('hidden');
-      
-      console.log("Código verificado, mostrou tela de registro");
-    })
-    .catch(error => {
-      console.error("Erro ao verificar código:", error);
-      alert("Erro ao verificar código: " + error.message);
-      btnEnterCodePlayer.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar na Partida';
-      btnEnterCodePlayer.disabled = false;
-    });
+  db.ref(`games/${code}`).once('value', snap => {
+    btnEnterCodePlayer.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar na Partida';
+    btnEnterCodePlayer.disabled = false;
+    
+    if(!snap.exists()){
+      alert("Partida não encontrada!");
+      return;
+    }
+    
+    const gameData = snap.val();
+    if (gameData.status === 'finished') {
+      alert("Esta partida já foi encerrada!");
+      return;
+    }
+    
+    gameCode = code;
+    playerStep1.classList.add('hidden');
+    playerRegister.classList.remove('hidden');
+  }).catch(error => {
+    alert("Erro ao verificar código: " + error.message);
+    btnEnterCodePlayer.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar na Partida';
+    btnEnterCodePlayer.disabled = false;
+  });
 }
 
-// Simplificação da função de registro sem uso de câmera
-function registerPlayerInGame() {
+async function registerPlayerInGame(){
   const name = inputPlayerName.value.trim();
   if(!name) {
     alert("Digite seu nome!");
@@ -2078,53 +1689,36 @@ function registerPlayerInGame() {
   btnJoinPlayerGame.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Entrando...';
   btnJoinPlayerGame.disabled = true;
   
-  // Agora usamos uma abordagem mais simplificada e direta - primeiro verificamos se o jogo existe
-  db.ref(`games/${gameCode}`).once('value')
-    .then(function(gameSnap) {
-      if (!gameSnap.exists()) {
-        throw new Error("Jogo não encontrado");
-      }
-      
-      // Cria player
-      const ref = db.ref(`games/${gameCode}/players`).push();
-      myPlayerKey = ref.key;
-      
-      // Dados do jogador (sem foto)
-      const playerData = {
-        name, 
-        jokers: 0,
-        hasFingerPower: false
-      };
-      
-      // Registra o jogador
-      return ref.set(playerData);
-    })
-    .then(function() {
-      // Salva dados locais
-      localStorage.setItem("opoderdedo_gameId", gameCode);
-      localStorage.setItem("opoderdedo_playerKey", myPlayerKey);
-      localStorage.setItem("opoderdedo_playerName", name);
-
-      // Escuta atualizações do jogo
-      db.ref(`games/${gameCode}`).on('value', function(s) {
-        if(!s.exists()) return;
-        updatePlayerView(s.val());
-      });
-
-      // Esconde a tela de registro
-      playerRegister.classList.add('hidden');
-    })
-    .catch(function(error) {
-      console.error("Erro ao registrar jogador:", error);
-      alert("Erro ao entrar na partida: " + error.message);
-      btnJoinPlayerGame.innerHTML = '<i class="fas fa-check-circle"></i> Confirmar e Entrar';
-      btnJoinPlayerGame.disabled = false;
+  try {
+    // Cria player
+    const ref = db.ref(`games/${gameCode}/players`).push();
+    myPlayerKey = ref.key;
+    await ref.set({
+      name, 
+      jokers: 0,
+      hasFingerPower: false
     });
+
+    localStorage.setItem("opoderdedo_gameId", gameCode);
+    localStorage.setItem("opoderdedo_playerKey", myPlayerKey);
+    localStorage.setItem("opoderdedo_playerName", name);
+
+    db.ref(`games/${gameCode}`).on('value', s => {
+      if(!s.exists()) return;
+      updatePlayerView(s.val());
+    });
+
+    playerRegister.classList.add('hidden');
+    
+  } catch (error) {
+    alert("Erro ao entrar na partida: " + error.message);
+    btnJoinPlayerGame.innerHTML = '<i class="fas fa-check-circle"></i> Confirmar e Entrar';
+    btnJoinPlayerGame.disabled = false;
+  }
 }
 
-// Função de atualização da interface do jogador simplificada (sem referências a fotos)
-function updatePlayerView(gameData) {
-  if(gameData.status === 'lobby') {
+function updatePlayerView(gameData){
+  if(gameData.status === 'lobby'){
     playerLobby.classList.remove('hidden');
     playerGame.classList.add('hidden');
     
@@ -2141,12 +1735,12 @@ function updatePlayerView(gameData) {
       `).join('');
     }
   }
-  else if(gameData.status === 'ongoing') {
+  else if(gameData.status === 'ongoing'){
     playerLobby.classList.add('hidden');
     playerGame.classList.remove('hidden');
 
     const pObj = gameData.players?.[myPlayerKey];
-    if(!pObj) {
+    if(!pObj){
       playerStatusPanel.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Você não está no jogo!';
       playerStatusPanel.classList.remove('hidden');
       return;
@@ -2165,13 +1759,9 @@ function updatePlayerView(gameData) {
       const avatarLetter = pp.name.charAt(0).toUpperCase();
       
       let html = `<div class="player-item ${isCurrent ? 'current' : ''} ${pp.hasFingerPower ? 'finger-power' : ''}">
-        <div class="player-avatar" ${pp.hasFingerPower ? 'style="background: var(--warning); color: var(--dark);"' : ''}>
-          ${avatarLetter}
-        </div>
-        <div class="player-name">${pp.name}</div>`;
-      
-      // Badges na linha abaixo para melhor visualização em telas pequenas
-      html += `<div class="player-badges">`;
+        <div class="player-avatar" ${pp.hasFingerPower ? 'style="background: var(--warning); color: var(--dark);"' : ''}>${avatarLetter}</div>
+        <div class="player-name">${pp.name}</div>
+        <div class="player-badges">`;
       
       if (isCurrent) {
         html += `<span class="badge badge-turn"><i class="fas fa-play"></i> Vez</span>`;
@@ -2199,7 +1789,7 @@ function updatePlayerView(gameData) {
     const curIdx = gameData.currentPlayerIndex;
     const curKey = allKeys[curIdx];
     
-    if(curKey === myPlayerKey) {
+    if(curKey === myPlayerKey){
       // é minha vez
       playerStatusPanel.innerHTML = '<i class="fas fa-user-clock"></i> É A SUA VEZ!';
       playerStatusPanel.style.color = 'var(--success)';
@@ -2219,14 +1809,14 @@ function updatePlayerView(gameData) {
     }
 
     // Carta Atual
-    if(gameData.currentCard) {
+    if(gameData.currentCard){
       currentCardPlayer.innerHTML = renderCard(gameData.currentCard.rank, gameData.currentCard.suit);
     } else {
       currentCardPlayer.innerHTML = `<div style="text-align: center; color: #888; margin: 20px 0;"><i class="fas fa-info-circle"></i> Nenhuma carta jogada ainda</div>`;
     }
 
     // Regras
-    if(gameData.rules && gameData.rules.length > 0) {
+    if(gameData.rules && gameData.rules.length > 0){
       playerRules.innerHTML = gameData.rules.map(r => `<div class="rule-item">${r}</div>`).join('');
     } else {
       playerRules.innerHTML = `<div style="text-align: center; color: #888; padding: 10px;"><i class="fas fa-info-circle"></i> Nenhuma regra definida</div>`;
@@ -2257,11 +1847,11 @@ function updatePlayerView(gameData) {
 
     // Finger Power Global
     const fp = gameData.fingerPower || {};
-    if(fp.active) {
+    if(fp.active){
       fingerBox.classList.remove('hidden');
       const found = (fp.queue || []).find(x => x.playerKey === myPlayerKey);
       
-      if(found) {
+      if(found){
         btnFingerClick.disabled = true;
         btnFingerClick.innerHTML = '<i class="fas fa-check-circle"></i> Você já clicou!';
       } else {
@@ -2274,8 +1864,8 @@ function updatePlayerView(gameData) {
       fingerBox.classList.add('hidden');
     }
 
-    // Painel de eventos
-    if(gameData.logs && gameData.logs.length > 0) {
+    // Painel de eventos - centralizado e destacado
+    if(gameData.logs && gameData.logs.length > 0){
       playerPainel.innerHTML = gameData.logs.map(l => `<div>${l}</div>`).join('');
       playerPainel.scrollTop = playerPainel.scrollHeight;
     } else {
@@ -2283,7 +1873,7 @@ function updatePlayerView(gameData) {
     }
     
     // Chat
-    if(gameData.chat && gameData.chat.length > 0) {
+    if(gameData.chat && gameData.chat.length > 0){
       playerChat.innerHTML = gameData.chat.map(c => {
         const isHost = c.from === 'HOST';
         return `<div class="chat-message ${isHost ? 'host-message' : ''}">
@@ -2296,14 +1886,13 @@ function updatePlayerView(gameData) {
     }
 
     // Needs to Drink?
-    if(pObj.needsToDrink) {
+    if(pObj.needsToDrink){
       alert("🍺 Você precisa beber!");
       db.ref(`games/${gameCode}/players/${myPlayerKey}/needsToDrink`).remove();
     }
   }
-  else if(gameData.status === 'finished') {
+  else if(gameData.status === 'finished'){
     alert("Esta partida foi encerrada!");
-    clearPlayerCache();
     setTimeout(() => location.reload(), 1000); // Recarrega após o alerta
   }
 }
@@ -2558,45 +2147,35 @@ function generateDeck(){
   return deck;
 }
 
-function generateDeck(){
-  const suits = ["♥","♦","♣","♠"];
-  const ranks= ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
-  let deck=[];
-  
-  for(let s of suits){
-    for(let r of ranks){
-      deck.push({rank:r, suit:s});
-    }
+function renderCard(rank, suit){
+  if(rank === 'Joker'){
+    return `
+      <div class="card-front" style="background: linear-gradient(135deg, #ffd700 0%, #f9a825 100%);">
+        <div class="card-center-symbol" style="font-size: 1.8rem; color: var(--dark);">
+          <i class="fas fa-crown"></i><br>
+          <span style="font-size: 1rem;">CORINGA</span>
+        </div>
+      </div>
+    `;
   }
   
-  for(let i = 0; i < 3; i++){
-    deck.push({rank: 'Joker', suit: 'Coringa'});
-  }
-  
-  // shuffle
-  for(let i = deck.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [deck[i], deck[j]] = [deck[j], deck[i]];
-  }
-  
-  return deck;
+  const isRed = (suit === '♥' || suit === '♦');
+  const suitSymbol = suit === '♥' ? '♥️' : 
+                    suit === '♦' ? '♦️' : 
+                    suit === '♣' ? '♣️' : 
+                    suit === '♠' ? '♠️' : '';
+                    
+  return `
+    <div class="card-front">
+      <div class="card-rank-suit ${isRed ? 'red' : 'black'}">
+        ${rank}${suitSymbol}
+      </div>
+      <div class="card-center-symbol ${isRed ? 'red' : 'black'}">
+        ${rank}<br>${suitSymbol}
+      </div>
+    </div>
+  `;
 }
-  <!-- Document Body -->
-  <script>
-    /* FUNÇÃO PARA LIMPAR CÓDIGO DA CARTA DO DOM */
-function limparElementosDeTexto() {
-  // Remove qualquer texto que possa estar aparecendo incorretamente na página
-  const elementos = document.querySelectorAll("body > *:not(#mainContainer):not(script)");
-  for (let i = 0; i < elementos.length; i++) {
-    elementos[i].remove();
-  }
-}
-
-// Executar a limpeza quando o documento estiver completamente carregado
-document.addEventListener('DOMContentLoaded', function() {
-  console.log("Verificando e limpando elementos de texto incorretos...");
-  limparElementosDeTexto();
-});
-  </script>
+</script>
 </body>
 </html>
