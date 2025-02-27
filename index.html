@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>O Poder do Dedo - Versão 2.0</title>
+  <title>O Poder do Dedo - Versão 2.1</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Firebase (compat) -->
@@ -696,6 +696,173 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+
+    /* NOVAS FUNCIONALIDADES - CSS */
+    
+    /* Enhanced Card Rules */
+    .current-card-rule {
+      padding: 12px;
+      background: linear-gradient(135deg, #fffde7 0%, #fff59d 100%);
+      border-radius: var(--border-radius-md);
+      margin-bottom: 15px;
+      border-left: 4px solid var(--warning);
+      box-shadow: 0 0 10px rgba(255, 214, 0, 0.3);
+      animation: pulse-highlight 2s infinite alternate;
+    }
+
+    .current-card-rule h4 {
+      color: var(--dark);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .current-card-rule p {
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    @keyframes pulse-highlight {
+      from { box-shadow: 0 0 5px rgba(255, 214, 0, 0.3); }
+      to { box-shadow: 0 0 15px rgba(255, 214, 0, 0.7); }
+    }
+
+    /* Enhanced Finger Power UI */
+    .finger-box {
+      background: linear-gradient(135deg, #fff9c4 0%, #ffeb3b 100%);
+      border-radius: var(--border-radius-md);
+      padding: 15px;
+      margin: 15px 0;
+      box-shadow: var(--shadow-md);
+      border-left: 4px solid var(--warning);
+      animation: finger-pulse 1.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes finger-pulse {
+      from { transform: scale(1); box-shadow: 0 0 10px rgba(255, 214, 0, 0.4); }
+      to { transform: scale(1.02); box-shadow: 0 0 20px rgba(255, 214, 0, 0.7); }
+    }
+
+    #fingerQueue {
+      margin-top: 15px;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: var(--border-radius-sm);
+      padding: 10px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    #fingerQueue div {
+      padding: 5px;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    #fingerQueue div:last-child {
+      border-bottom: none;
+    }
+
+    /* Enhanced Joker and Special Action Buttons */
+    .special-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    .action-card {
+      background: white;
+      border-radius: var(--border-radius-md);
+      padding: 12px;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .action-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .action-icon {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      margin-right: 10px;
+      font-size: 1.3rem;
+    }
+
+    .action-joker .action-icon {
+      background: linear-gradient(135deg, #7c4dff 0%, #651fff 100%);
+      color: white;
+    }
+
+    .action-finger .action-icon {
+      background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
+      color: var(--dark);
+    }
+
+    .action-content {
+      flex-grow: 1;
+    }
+
+    .action-title {
+      font-weight: 600;
+      color: var(--primary-dark);
+      margin-bottom: 3px;
+    }
+
+    .action-desc {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    /* New Deck Button Animation */
+    #btnNewDeck {
+      animation: glow-button 1.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow-button {
+      from { box-shadow: 0 0 5px rgba(0, 200, 83, 0.5); }
+      to { box-shadow: 0 0 15px rgba(0, 200, 83, 0.8); }
+    }
+
+    /* Clickable Player Items (for Host) */
+    .player-item.has-joker {
+      cursor: pointer;
+      border-left: 3px solid var(--secondary);
+    }
+
+    .player-item.has-joker:hover {
+      background: #f5f5f5;
+      box-shadow: var(--shadow-md);
+    }
+
+    .player-item .badge-joker {
+      transition: transform 0.3s ease;
+    }
+
+    .player-item:hover .badge-joker {
+      transform: scale(1.1);
+    }
+
+    /* Tooltip for joker removal */
+    .player-item.has-joker:hover::after {
+      content: "Clique para remover coringa";
+      position: absolute;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      right: 10px;
+      top: -25px;
+      z-index: 100;
+      pointer-events: none;
+    }
   </style>
 </head>
 
@@ -789,6 +956,29 @@
             <!-- Cabeçalho -->
             <div class="header-area">
               <div id="hostStatusPanel" class="status-panel"></div>
+              
+              <!-- Regras da Carta Atual (dinâmica) -->
+              <div id="hostRulesBox" class="current-card-rule hidden">
+                <h4><i class="fas fa-info-circle"></i> Regra da Carta Atual:</h4>
+                <p id="hostCurrentRule"></p>
+              </div>
+              
+              <!-- Painel de Poder do Dedo para Host -->
+              <div id="hostFingerPowerPanel" class="finger-box hidden">
+                <h4 style="font-weight: 600; margin-bottom: 10px;">
+                  <i class="fas fa-hand-point-up fa-bounce"></i> Poder do Dedo Ativo!
+                </h4>
+                <p><strong>Jogador:</strong> <span id="fingerPowerOwner">-</span></p>
+                <div id="hostFingerQueue" style="margin-top: 10px;">
+                  <h5>Ordem de Cliques:</h5>
+                  <div class="panel-box" style="max-height: 120px; overflow-y: auto;">
+                    <div id="hostFingerQueueList"></div>
+                  </div>
+                </div>
+                <button id="btnFinalizeFinger" class="btn-danger" style="margin-top: 10px; width: 100%;">
+                  <i class="fas fa-stop-circle"></i> Finalizar Poder do Dedo
+                </button>
+              </div>
             </div>
             
             <!-- Painel Esquerdo -->
@@ -807,6 +997,7 @@
                   <button id="btnDrawCard" class="btn-warning" style="margin-top: 15px; width: 100%;">
                     <i class="fas fa-hand-paper"></i> Puxar Carta
                   </button>
+                  <!-- Novo Baralho (será adicionado dinamicamente) -->
                 </div>
                 
                 <!-- Baralho -->
@@ -928,11 +1119,17 @@
             <div class="header-area">
               <div id="playerStatusPanel" class="status-panel hidden"></div>
               
+              <!-- Regras da Carta Atual (dinâmica) -->
+              <div id="playerRulesBox" class="current-card-rule hidden">
+                <h4><i class="fas fa-info-circle"></i> Regra da Carta Atual:</h4>
+                <p id="playerCurrentRule"></p>
+              </div>
+              
               <!-- Finger Box - Poder do Dedo -->
               <div class="finger-box hidden" id="fingerBox">
                 <h4 style="font-weight: 600; margin-bottom: 10px;"><i class="fas fa-hand-point-up fa-bounce"></i> Poder do Dedo Ativo!</h4>
-                <p style="margin-bottom: 10px;">Seja rápido para não ser o último!</p>
-                <button id="btnFingerClick" class="btn-danger" style="margin-top: 5px; width: 100%;">
+                <p style="margin-bottom: 10px;" id="fingerBoxDesc">Seja rápido para não ser o último!</p>
+                <button id="btnFingerClick" class="btn-danger animate-pulse" style="margin-top: 5px; width: 100%;">
                   <i class="fas fa-bolt"></i> CLIQUE AGORA!
                 </button>
                 <div id="fingerQueue" style="margin-top: 10px; font-weight: 500;"></div>
@@ -966,7 +1163,38 @@
                   <div id="deckViewPlayer"></div>
                 </div>
                 
-                <!-- Ações especiais -->
+                <!-- Ações especiais melhoradas -->
+                <div class="special-actions" id="playerSpecialActions" style="margin-top: 15px;">
+                  <!-- Joker action card - será exibido/ocultado via JS -->
+                  <div class="action-card action-joker hidden" id="jokerActionCard">
+                    <div class="action-icon">
+                      <i class="fas fa-magic"></i>
+                    </div>
+                    <div class="action-content">
+                      <div class="action-title">Coringa</div>
+                      <div class="action-desc">Use para não beber quando for sua vez</div>
+                    </div>
+                    <button class="btn-info" id="btnUseJokerCard" style="margin-left: 10px;">
+                      <i class="fas fa-check"></i> Usar
+                    </button>
+                  </div>
+                  
+                  <!-- Finger Power action card - será exibido/ocultado via JS -->
+                  <div class="action-card action-finger hidden" id="fingerActionCard">
+                    <div class="action-icon">
+                      <i class="fas fa-hand-point-up"></i>
+                    </div>
+                    <div class="action-content">
+                      <div class="action-title">Poder do Dedo</div>
+                      <div class="action-desc">Ative para fazer todos clicarem - o último bebe!</div>
+                    </div>
+                    <button class="btn-warning" id="btnFingerActivateCard" style="margin-left: 10px;">
+                      <i class="fas fa-bolt"></i> Ativar
+                    </button>
+                  </div>
+                </div>
+                
+                <!-- Botões de ação (antigos - mantidos para compatibilidade) -->
                 <div style="text-align: center; margin-top: auto; padding-top: 15px;" class="button-group">
                   <button id="btnUseJoker" class="btn-info" style="display: none;">
                     <i class="fas fa-magic"></i> Usar Coringa
@@ -1062,6 +1290,24 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const storage = firebase.storage();
 
+/********** MAPA DE EFEITOS DAS CARTAS **********/
+const cardEffectsMap = {
+  'A': 'Todos bebem 1 dose',
+  '2': 'Escolha alguém para beber 2 doses',
+  '3': 'Beba 3 goles',
+  '4': 'Crie uma nova regra para o jogo',
+  '5': 'Homens bebem',
+  '6': 'Todas as regras são quebradas',
+  '7': 'Comece uma história e cada jogador adiciona uma frase',
+  '8': 'Ganha o Poder do Dedo - Use quando quiser',
+  '9': 'O sentido do jogo é invertido',
+  '10': 'Pula o próximo jogador',
+  'J': 'Você bebe 1 dose',
+  'Q': 'Todas as mulheres bebem 1 dose',
+  'K': 'Todos os homens bebem 1 dose',
+  'Joker': 'Ganha um Coringa - use para escapar de beber'
+};
+
 /********** PEGA ELEMENTOS DO DOM (Host e Player) **********/
 const modeSelect = document.getElementById('modeSelect');
 const btnHost = document.getElementById('btnHost');
@@ -1097,6 +1343,22 @@ const hostChatInput = document.getElementById('hostChatInput');
 const btnHostSendChat = document.getElementById('btnHostSendChat');
 const btnEndGame = document.getElementById('btnEndGame');
 
+// Elementos novos para host
+const hostRulesBox = document.getElementById('hostRulesBox');
+const hostCurrentRule = document.getElementById('hostCurrentRule');
+const hostFingerPowerPanel = document.getElementById('hostFingerPowerPanel');
+const fingerPowerOwner = document.getElementById('fingerPowerOwner');
+const hostFingerQueueList = document.getElementById('hostFingerQueueList');
+const btnFinalizeFinger = document.getElementById('btnFinalizeFinger');
+// Botão de novo baralho (criado dinamicamente)
+const btnNewDeck = document.createElement('button');
+btnNewDeck.id = 'btnNewDeck';
+btnNewDeck.className = 'btn-success';
+btnNewDeck.style.marginTop = '10px';
+btnNewDeck.style.width = '100%';
+btnNewDeck.innerHTML = '<i class="fas fa-plus-circle"></i> Novo Baralho';
+btnNewDeck.onclick = generateNewDeck;
+
 // Player
 const playerArea = document.getElementById('playerArea');
 const playerStep1 = document.getElementById('playerStep1');
@@ -1126,6 +1388,15 @@ const playerPainel = document.getElementById('playerPainel');
 const playerChat = document.getElementById('playerChat');
 const playerChatInput = document.getElementById('playerChatInput');
 const btnPlayerSendChat = document.getElementById('btnPlayerSendChat');
+
+// Novos elementos para jogador
+const playerRulesBox = document.getElementById('playerRulesBox');
+const playerCurrentRule = document.getElementById('playerCurrentRule');
+const fingerBoxDesc = document.getElementById('fingerBoxDesc');
+const jokerActionCard = document.getElementById('jokerActionCard');
+const fingerActionCard = document.getElementById('fingerActionCard');
+const btnUseJokerCard = document.getElementById('btnUseJokerCard');
+const btnFingerActivateCard = document.getElementById('btnFingerActivateCard');
 
 const videoOverlay = document.getElementById('videoOverlay');
 const videoPreview = document.getElementById('videoPreview');
@@ -1170,6 +1441,7 @@ btnStartGame.onclick = startGameHost;
 btnDrawCard.onclick = drawCardHost;
 btnEndGame.onclick = endGameHost;
 btnHostSendChat.onclick = sendChatAsHost;
+btnFinalizeFinger.onclick = finalizeFingerPower;
 
 // Enter para enviar mensagens
 hostChatInput.addEventListener('keypress', (e) => {
@@ -1190,6 +1462,8 @@ btnCloseVideoOverlay.onclick = closeVideoOverlay;
 btnStartRecording.onclick = startVideoRecording;
 btnStopRecording.onclick = stopVideoRecording;
 btnPlayerSendChat.onclick = sendChatAsPlayer;
+btnUseJokerCard.onclick = useJokerPlayer;
+btnFingerActivateCard.onclick = activateFingerPower;
 
 // Enter para enviar mensagens
 playerChatInput.addEventListener('keypress', (e) => {
@@ -1217,6 +1491,27 @@ inputPlayerName.addEventListener('keypress', (e) => {
   }
 });
 
+// Conectar o hostPlayersStatus para permitir gerenciamento de Coringas
+hostPlayersStatus.addEventListener('click', function(e) {
+  const playerItem = e.target.closest('.player-item');
+  if (!playerItem) return;
+  
+  const jokerBadge = playerItem.querySelector('.badge-joker');
+  if (jokerBadge) {
+    const playerKey = playerItem.dataset.playerKey;
+    if (playerKey) {
+      deactivatePlayerJoker(playerKey);
+    }
+  }
+});
+
+/********** FUNÇÕES PARA LIMPAR CACHE **********/
+function clearLocalGameData() {
+  localStorage.removeItem("opoderdedo_gameId");
+  localStorage.removeItem("opoderdedo_playerKey");
+  localStorage.removeItem("opoderdedo_playerName");
+}
+
 /********** CHECK LOCALSTORAGE DO PLAYER **********/
 (async function checkLocalStoragePlayer(){
   const savedId = localStorage.getItem("opoderdedo_gameId");
@@ -1238,8 +1533,8 @@ inputPlayerName.addEventListener('keypress', (e) => {
       playerStep1.classList.add('hidden');
       playerRegister.classList.add('hidden');
     } else {
-      localStorage.removeItem("opoderdedo_gameId");
-      localStorage.removeItem("opoderdedo_playerKey");
+      // Limpa cache se o jogo/jogador não existir mais
+      clearLocalGameData();
     }
   }
 })();
@@ -1329,6 +1624,7 @@ function subscribeHost(code){
       renderHostGame(data);
     } else if(data.status==='finished'){
       alert("Partida Encerrada!");
+      clearLocalGameData();
       location.reload(); // Recarrega para voltar à tela inicial
     }
   });
@@ -1396,8 +1692,17 @@ function renderHostGame(data){
 
   if(data.currentCard){
     currentCardHost.innerHTML = renderCard(data.currentCard.rank, data.currentCard.suit);
+    
+    // Exibir regra da carta atual
+    if (cardEffectsMap[data.currentCard.rank]) {
+      hostRulesBox.classList.remove('hidden');
+      hostCurrentRule.textContent = `${data.currentCard.rank}: ${cardEffectsMap[data.currentCard.rank]}`;
+    } else {
+      hostRulesBox.classList.add('hidden');
+    }
   } else {
     currentCardHost.innerHTML = `<div style="text-align: center; color: #888; margin: 20px 0;"><i class="fas fa-info-circle"></i> Nenhuma carta jogada ainda</div>`;
+    hostRulesBox.classList.add('hidden');
   }
 
   if(data.rules && data.rules.length > 0){
@@ -1407,10 +1712,12 @@ function renderHostGame(data){
   }
 
   // Lista de jogadores - destaque para quem tem poder do dedo
-  hostPlayersStatus.innerHTML = players.map((p, i) => {
+  hostPlayersStatus.innerHTML = Object.entries(data.players || {}).map(([key, p], i) => {
     const isCurrent = (i === data.currentPlayerIndex);
     const avatarLetter = p.name.charAt(0).toUpperCase();
-    let html = `<div class="player-item ${isCurrent ? 'current' : ''} ${p.hasFingerPower ? 'finger-power' : ''}">
+    const hasJoker = p.jokers && p.jokers > 0;
+    
+    let html = `<div class="player-item ${isCurrent ? 'current' : ''} ${p.hasFingerPower ? 'finger-power' : ''} ${hasJoker ? 'has-joker' : ''}" data-player-key="${key}">
       <div class="player-avatar" ${p.hasFingerPower ? 'style="background: var(--warning); color: var(--dark);"' : ''}>${avatarLetter}</div>
       <div class="player-name">${p.name}</div>
       <div class="player-badges">`;
@@ -1419,7 +1726,7 @@ function renderHostGame(data){
       html += `<span class="badge badge-turn"><i class="fas fa-play"></i> Vez</span>`;
     }
     
-    if (p.jokers && p.jokers > 0) {
+    if (hasJoker) {
       html += `<span class="badge badge-joker"><i class="fas fa-magic"></i> ${p.jokers}</span>`;
     }
     
@@ -1456,31 +1763,51 @@ function renderHostGame(data){
   if (!data.deck || data.deck.length === 0) {
     btnDrawCard.disabled = true;
     btnDrawCard.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Baralho vazio';
+    
+    // Mostrar botão "Novo Baralho" se não estiver presente
+    if (!document.getElementById('btnNewDeck')) {
+      // Adicionar após o botão de puxar carta
+      btnDrawCard.parentNode.insertBefore(btnNewDeck, btnDrawCard.nextSibling);
+    }
   } else {
     btnDrawCard.disabled = false;
     btnDrawCard.innerHTML = '<i class="fas fa-hand-paper"></i> Puxar Carta';
+    
+    // Remover botão de novo baralho se o baralho não estiver vazio
+    const btnND = document.getElementById('btnNewDeck');
+    if (btnND) {
+      btnND.remove();
+    }
   }
   
-  // Adicionar botão para finalizar Poder do Dedo se estiver ativo
+  // Visualizar o Poder do Dedo ativo
   const fp = data.fingerPower || {};
   if(fp.active) {
-    // Pode adicionar um botão específico no painel do host para finalizar o poder do dedo
-    if (!document.getElementById('btnFinalizeFinger')) {
-      const btnFinalizeFinger = document.createElement('button');
-      btnFinalizeFinger.id = 'btnFinalizeFinger';
-      btnFinalizeFinger.className = 'btn-danger';
-      btnFinalizeFinger.innerHTML = '<i class="fas fa-stop-circle"></i> Finalizar Poder do Dedo';
-      btnFinalizeFinger.onclick = finalizeFingerPower;
-      
-      // Adicionar antes do botão de encerrar partida
-      btnEndGame.parentNode.insertBefore(btnFinalizeFinger, btnEndGame);
+    hostFingerPowerPanel.classList.remove('hidden');
+    
+    // Mostrar informações do poder ativo
+    if (fp.owner && data.players[fp.owner]) {
+      fingerPowerOwner.textContent = data.players[fp.owner].name;
+    } else {
+      fingerPowerOwner.textContent = "Desconhecido";
+    }
+    
+    // Mostrar a fila de jogadores que clicaram
+    const queue = fp.queue || [];
+    if (queue.length > 0) {
+      hostFingerQueueList.innerHTML = queue.map((x, i) => {
+        let style = '';
+        // Destacar baseado na posição
+        if(i === 0) style = 'color: green; font-weight: bold;'; // Primeiro
+        else if(i === queue.length - 1) style = 'color: red; font-weight: bold;'; // Último
+        
+        return `<div style="${style}">${i+1}º: ${x.name}</div>`;
+      }).join('');
+    } else {
+      hostFingerQueueList.innerHTML = '<div>Ninguém clicou ainda!</div>';
     }
   } else {
-    // Remover o botão se não estiver ativo
-    const btnFinalizeFinger = document.getElementById('btnFinalizeFinger');
-    if (btnFinalizeFinger) {
-      btnFinalizeFinger.remove();
-    }
+    hostFingerPowerPanel.classList.add('hidden');
   }
 }
 
@@ -1517,9 +1844,38 @@ async function drawCardHost(){
 
 function endGameHost(){
   if (confirm("Tem certeza que deseja encerrar a partida?")) {
+    // Primeiro notifica os jogadores que o jogo está encerrando
+    addLog("🏁 O organizador encerrou a partida!");
+    
     db.ref(`games/${gameCode}`).update({status: 'finished'})
+      .then(() => {
+        // Limpa dados locais do host
+        clearLocalGameData();
+        // Espera um momento antes de recarregar para garantir que os dados cheguem ao Firebase
+        setTimeout(() => location.reload(), 1000);
+      })
       .catch(error => alert("Erro ao encerrar partida: " + error.message));
   }
+}
+
+// Função para gerar novo baralho quando as cartas acabarem
+function generateNewDeck(){
+  btnNewDeck.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
+  btnNewDeck.disabled = true;
+  
+  const newDeck = generateDeck();
+  
+  db.ref(`games/${gameCode}`).update({
+    deck: newDeck
+  }).then(() => {
+    addLog("🃏 Um novo baralho foi adicionado!");
+    btnNewDeck.innerHTML = '<i class="fas fa-plus-circle"></i> Novo Baralho';
+    btnNewDeck.disabled = false;
+  }).catch(error => {
+    alert("Erro ao gerar novo baralho: " + error.message);
+    btnNewDeck.innerHTML = '<i class="fas fa-plus-circle"></i> Novo Baralho';
+    btnNewDeck.disabled = false;
+  });
 }
 
 function sendChatAsHost(){
@@ -1550,6 +1906,11 @@ function handleCardEffect(card, gameData){
                      card.suit === '♠' ? '♠️' : '';
                      
   logs.push(`${currName} puxou [${card.rank}${card.suit !== 'Coringa' ? suitSymbol : ''}]`);
+  
+  // Adiciona descrição da regra da carta aos logs
+  if (cardEffectsMap[card.rank]) {
+    logs.push(`📜 REGRA: ${cardEffectsMap[card.rank]}`);
+  }
 
   let passTurn = true;
   switch(card.rank){
@@ -1811,371 +2172,6 @@ function updatePlayerView(gameData){
     // Carta Atual
     if(gameData.currentCard){
       currentCardPlayer.innerHTML = renderCard(gameData.currentCard.rank, gameData.currentCard.suit);
-    } else {
-      currentCardPlayer.innerHTML = `<div style="text-align: center; color: #888; margin: 20px 0;"><i class="fas fa-info-circle"></i> Nenhuma carta jogada ainda</div>`;
-    }
-
-    // Regras
-    if(gameData.rules && gameData.rules.length > 0){
-      playerRules.innerHTML = gameData.rules.map(r => `<div class="rule-item">${r}</div>`).join('');
-    } else {
-      playerRules.innerHTML = `<div style="text-align: center; color: #888; padding: 10px;"><i class="fas fa-info-circle"></i> Nenhuma regra definida</div>`;
-    }
-
-    // Jogador tem finger? - mostrar de forma mais proeminente
-    if (pObj.hasFingerPower) {
-      btnActivateFinger.style.display = 'inline-block';
-      btnActivateFinger.innerHTML = '<i class="fas fa-hand-point-up"></i> Ativar Poder do Dedo';
-      btnActivateFinger.className = 'btn-warning';
-      // Adicionar animação para chamar atenção
-      btnActivateFinger.classList.add('animate-pulse');
       
-      // Indica no status panel também
-      if (playerStatusPanel.innerHTML.indexOf('Poder do Dedo') === -1) {
-        playerStatusPanel.innerHTML += `<div style="margin-top: 5px;"><i class="fas fa-hand-point-up"></i> Você tem o <strong>Poder do Dedo</strong> - Use quando quiser!</div>`;
-      }
-    } else {
-      btnActivateFinger.style.display = 'none';
-      btnActivateFinger.classList.remove('animate-pulse');
-    }
-    
-    // Jogador tem coringa?
-    btnUseJoker.style.display = (pObj.jokers > 0) ? 'inline-block' : 'none';
-    if (pObj.jokers > 0) {
-      btnUseJoker.innerHTML = `<i class="fas fa-magic"></i> Usar Coringa (${pObj.jokers})`;
-    }
-
-    // Finger Power Global
-    const fp = gameData.fingerPower || {};
-    if(fp.active){
-      fingerBox.classList.remove('hidden');
-      const found = (fp.queue || []).find(x => x.playerKey === myPlayerKey);
-      
-      if(found){
-        btnFingerClick.disabled = true;
-        btnFingerClick.innerHTML = '<i class="fas fa-check-circle"></i> Você já clicou!';
-      } else {
-        btnFingerClick.disabled = false;
-        btnFingerClick.innerHTML = '<i class="fas fa-bolt"></i> CLIQUE AGORA!';
-      }
-      
-      fingerQueue.innerHTML = (fp.queue || []).map((x, i) => `${i+1}º: <strong>${x.name}</strong>`).join('<br>');
-    } else {
-      fingerBox.classList.add('hidden');
-    }
-
-    // Painel de eventos - centralizado e destacado
-    if(gameData.logs && gameData.logs.length > 0){
-      playerPainel.innerHTML = gameData.logs.map(l => `<div>${l}</div>`).join('');
-      playerPainel.scrollTop = playerPainel.scrollHeight;
-    } else {
-      playerPainel.innerHTML = `<div style="text-align: center; color: #888;"><i class="fas fa-info-circle"></i> Nenhum evento registrado</div>`;
-    }
-    
-    // Chat
-    if(gameData.chat && gameData.chat.length > 0){
-      playerChat.innerHTML = gameData.chat.map(c => {
-        const isHost = c.from === 'HOST';
-        return `<div class="chat-message ${isHost ? 'host-message' : ''}">
-          <strong>${c.from}:</strong> ${c.text}
-        </div>`;
-      }).join('');
-      playerChat.scrollTop = playerChat.scrollHeight;
-    } else {
-      playerChat.innerHTML = `<div style="text-align: center; color: #888; padding: 20px;"><i class="fas fa-comments"></i> Nenhuma mensagem ainda</div>`;
-    }
-
-    // Needs to Drink?
-    if(pObj.needsToDrink){
-      alert("🍺 Você precisa beber!");
-      db.ref(`games/${gameCode}/players/${myPlayerKey}/needsToDrink`).remove();
-    }
-  }
-  else if(gameData.status === 'finished'){
-    alert("Esta partida foi encerrada!");
-    setTimeout(() => location.reload(), 1000); // Recarrega após o alerta
-  }
-}
-
-async function drawCardPlayer(){
-  btnDrawCardPlayer.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Puxando...';
-  btnDrawCardPlayer.disabled = true;
-  
-  try {
-    const snap = await db.ref(`games/${gameCode}`).once('value');
-    const data = snap.val();
-    if(!data) return;
-    
-    const allKeys = Object.keys(data.players || {});
-    if(allKeys[data.currentPlayerIndex] !== myPlayerKey){
-      alert("Não é sua vez de puxar carta!");
-      btnDrawCardPlayer.innerHTML = '<i class="fas fa-hand-paper"></i> Puxar Carta';
-      btnDrawCardPlayer.disabled = false;
-      return;
-    }
-    
-    if(!data.deck || data.deck.length === 0){
-      addLog("Baralho acabou!");
-      btnDrawCardPlayer.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Baralho vazio';
-      btnDrawCardPlayer.disabled = true;
-      return;
-    }
-    
-    const card = data.deck[0];
-    const newDeck = data.deck.slice(1);
-    handleCardEffect(card, data);
-    
-    await db.ref(`games/${gameCode}`).update({
-      deck: newDeck, 
-      currentCard: card
-    });
-  } catch (error) {
-    alert("Erro ao puxar carta: " + error.message);
-  } finally {
-    btnDrawCardPlayer.innerHTML = '<i class="fas fa-hand-paper"></i> Puxar Carta';
-    btnDrawCardPlayer.disabled = false;
-  }
-}
-
-/********** CORINGA, PODER DEDO **********/
-function useJokerPlayer(){
-  btnUseJoker.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-  btnUseJoker.disabled = true;
-  
-  db.ref(`games/${gameCode}/players/${myPlayerKey}`).once('value', snap => {
-    const p = snap.val();
-    if(!p) return;
-    
-    if(p.jokers > 0){
-      db.ref(`games/${gameCode}/players/${myPlayerKey}/jokers`).set(p.jokers - 1);
-      addLog(`🃏 ${p.name} usou 1 Coringa para não beber!`);
-      setTimeout(() => {
-        btnUseJoker.innerHTML = '<i class="fas fa-magic"></i> Usar Coringa';
-        btnUseJoker.disabled = false;
-      }, 500);
-    } else {
-      btnUseJoker.style.display = 'none';
-    }
-  });
-}
-
-function activateFingerPower(){
-  btnActivateFinger.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-  btnActivateFinger.disabled = true;
-  
-  const name = localStorage.getItem("opoderdedo_playerName") || 'Jogador';
-  db.ref(`games/${gameCode}/fingerPower`).set({
-    active: true, 
-    owner: myPlayerKey,
-    queue: [{playerKey: myPlayerKey, name}]
-  });
-  
-  db.ref(`games/${gameCode}/players/${myPlayerKey}/hasFingerPower`).set(false);
-  addLog(`👆 ${name} ativou o Poder do Dedo!`);
-  
-  // Desativa o botão e depois esconde após animação
-  setTimeout(() => {
-    btnActivateFinger.style.display = 'none';
-    btnActivateFinger.disabled = false;
-    btnActivateFinger.innerHTML = '<i class="fas fa-hand-point-up"></i> Poder do Dedo (8)';
-  }, 500);
-  
-  // Não finaliza automaticamente - o organizador pode finalizar manualmente
-}
-
-function fingerClick(){
-  btnFingerClick.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-  btnFingerClick.disabled = true;
-  
-  db.ref(`games/${gameCode}/fingerPower/queue`).once('value', snap => {
-    let arr = snap.val() || [];
-    if(arr.find(x => x.playerKey === myPlayerKey)) return;
-    
-    const name = localStorage.getItem("opoderdedo_playerName") || 'Jogador';
-    arr.push({playerKey: myPlayerKey, name});
-    db.ref(`games/${gameCode}/fingerPower/queue`).set(arr)
-      .then(() => {
-        btnFingerClick.innerHTML = '<i class="fas fa-check-circle"></i> Você já clicou!';
-      })
-      .catch(error => {
-        alert("Erro ao registrar clique: " + error.message);
-        btnFingerClick.innerHTML = '<i class="fas fa-bolt"></i> CLIQUE AGORA!';
-        btnFingerClick.disabled = false;
-      });
-  });
-}
-
-function finalizeFingerPower(){
-  db.ref(`games/${gameCode}/fingerPower`).once('value', snap => {
-    const fp = snap.val();
-    if(!fp || !fp.queue || fp.queue.length === 0) return;
-    
-    const last = fp.queue[fp.queue.length - 1];
-    addLog(`⏱️ O último a clicar foi ${last.name}, beba!`);
-    db.ref(`games/${gameCode}/players/${last.playerKey}/needsToDrink`).set(Date.now());
-    db.ref(`games/${gameCode}/fingerPower`).update({active: false, queue: []});
-  });
-}
-
-/********** GRAVAÇÃO VÍDEO **********/
-async function startVideoRecording(){
-  btnStartRecording.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inicializando...';
-  btnStartRecording.disabled = true;
-  
-  try {
-    if(!localCameraStream){
-      localCameraStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
-      videoPreview.srcObject = localCameraStream;
-    }
-    
-    recordedChunks = [];
-    mediaRecorder = new MediaRecorder(localCameraStream);
-    
-    mediaRecorder.ondataavailable = e => {
-      if(e.data.size > 0) recordedChunks.push(e.data);
-    };
-    
-    mediaRecorder.onstop = async () => {
-      btnStopRecording.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
-      btnStopRecording.disabled = true;
-      
-      if(recordedChunks.length > 0){
-        try {
-          const blob = new Blob(recordedChunks, {type: 'video/mp4'});
-          const ref = storage.ref(`games/${gameCode}/videos/${Date.now()}.mp4`);
-          await ref.put(blob);
-          const url = await ref.getDownloadURL();
-          addLog(`📹 Vídeo gravado! URL: ${url}`);
-          
-          alert("Vídeo salvo com sucesso!");
-        } catch (error) {
-          alert("Erro ao salvar vídeo: " + error.message);
-        } finally {
-          btnStopRecording.innerHTML = '<i class="fas fa-stop"></i> Parar';
-          btnStopRecording.disabled = false;
-        }
-      }
-    };
-    
-    mediaRecorder.start();
-    addLog("📹 Iniciou gravação de vídeo...");
-    
-    btnStartRecording.innerHTML = '<i class="fas fa-microphone"></i> Gravando...';
-    btnStartRecording.disabled = true;
-    btnStopRecording.disabled = false;
-  } catch (err) {
-    alert("Não foi possível acessar câmera: " + err);
-    btnStartRecording.innerHTML = '<i class="fas fa-play"></i> Iniciar';
-    btnStartRecording.disabled = false;
-  }
-}
-
-function stopVideoRecording(){
-  if(mediaRecorder && mediaRecorder.state === 'recording'){
-    mediaRecorder.stop();
-    addLog("📹 Parou gravação de vídeo.");
-    btnStartRecording.innerHTML = '<i class="fas fa-play"></i> Iniciar';
-    btnStartRecording.disabled = false;
-  }
-}
-
-function closeVideoOverlay(){
-  videoOverlay.style.display = 'none';
-  if(localCameraStream){
-    localCameraStream.getTracks().forEach(t => t.stop());
-    localCameraStream = null;
-  }
-  videoPreview.srcObject = null;
-  
-  // Reset buttons
-  btnStartRecording.innerHTML = '<i class="fas fa-play"></i> Iniciar';
-  btnStartRecording.disabled = false;
-  btnStopRecording.innerHTML = '<i class="fas fa-stop"></i> Parar';
-  btnStopRecording.disabled = false;
-}
-
-/********** CHAT (PLAYER) **********/
-function sendChatAsPlayer(){
-  const txt = playerChatInput.value.trim();
-  if(!txt) return;
-  
-  playerChatInput.value = '';
-  db.ref(`games/${gameCode}/chat`).once('value', snap => {
-    let arr = snap.val() || [];
-    const name = localStorage.getItem("opoderdedo_playerName") || 'Jogador';
-    arr.push({from: name, text: txt, ts: Date.now()});
-    db.ref(`games/${gameCode}/chat`).set(arr)
-      .catch(error => alert("Erro ao enviar mensagem: " + error.message));
-  });
-}
-
-/********** LOG HELPER **********/
-function addLog(msg){
-  db.ref(`games/${gameCode}/logs`).once('value', snap => {
-    let arr = snap.val() || [];
-    arr.push(msg);
-    db.ref(`games/${gameCode}/logs`).set(arr);
-  });
-}
-
-/********** GERA CODE E BARALHO **********/
-function generateGameCode(){
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
-function generateDeck(){
-  const suits = ["♥","♦","♣","♠"];
-  const ranks = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
-  let deck = [];
-  
-  for(let s of suits){
-    for(let r of ranks){
-      deck.push({rank: r, suit: s});
-    }
-  }
-  
-  for(let i = 0; i < 3; i++){
-    deck.push({rank: 'Joker', suit: 'Coringa'});
-  }
-  
-  // shuffle
-  for(let i = deck.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [deck[i], deck[j]] = [deck[j], deck[i]];
-  }
-  
-  return deck;
-}
-
-function renderCard(rank, suit){
-  if(rank === 'Joker'){
-    return `
-      <div class="card-front" style="background: linear-gradient(135deg, #ffd700 0%, #f9a825 100%);">
-        <div class="card-center-symbol" style="font-size: 1.8rem; color: var(--dark);">
-          <i class="fas fa-crown"></i><br>
-          <span style="font-size: 1rem;">CORINGA</span>
-        </div>
-      </div>
-    `;
-  }
-  
-  const isRed = (suit === '♥' || suit === '♦');
-  const suitSymbol = suit === '♥' ? '♥️' : 
-                    suit === '♦' ? '♦️' : 
-                    suit === '♣' ? '♣️' : 
-                    suit === '♠' ? '♠️' : '';
-                    
-  return `
-    <div class="card-front">
-      <div class="card-rank-suit ${isRed ? 'red' : 'black'}">
-        ${rank}${suitSymbol}
-      </div>
-      <div class="card-center-symbol ${isRed ? 'red' : 'black'}">
-        ${rank}<br>${suitSymbol}
-      </div>
-    </div>
-  `;
-}
-</script>
-</body>
-</html>
+      // Exibir regra da carta atual
+      if (cardEffectsMap[
