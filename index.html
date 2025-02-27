@@ -76,16 +76,18 @@
       flex-direction: column;
       align-items: center;
       color: var(--dark);
+      overflow: hidden; /* Previne scroll global */
     }
 
     /* CONTAINER PRINCIPAL COM LAYOUT FIXO */
     #mainContainer {
       width: 100%;
       height: 100vh; /* Altura total da viewport */
-      max-width: 100%; /* Usa toda a largura disponível */
+      max-width: 1920px;
       margin: 0 auto;
       background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
       border-radius: 0; /* Remove bordas arredondadas para usar tela completa */
+      box-shadow: var(--shadow-lg);
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -120,11 +122,11 @@
     /* Conteúdo principal com scroll */
     #contentScroll {
       flex: 1;
-      padding: 5px;
+      padding: 10px;
       display: grid;
       grid-template-columns: 1fr;
       grid-template-rows: 1fr;
-      gap: 5px;
+      gap: 10px;
       overflow: hidden;
     }
     
@@ -133,13 +135,13 @@
       display: grid;
       width: 100%;
       height: 100%;
-      grid-template-columns: minmax(250px, 1fr) minmax(300px, 2fr) minmax(250px, 1fr);
+      grid-template-columns: 1fr 2fr 1fr;
       grid-template-rows: auto 1fr auto;
       grid-template-areas: 
         "header header header"
         "left-panel center-panel right-panel"
         "footer footer footer";
-      gap: 5px;
+      gap: 10px;
     }
     
     .header-area {
@@ -149,24 +151,35 @@
     .left-panel {
       grid-area: left-panel;
       overflow-y: auto;
-      max-height: calc(100vh - 120px);
     }
     
     .center-panel {
       grid-area: center-panel;
       display: flex;
       flex-direction: column;
-      max-height: calc(100vh - 120px);
     }
     
     .right-panel {
       grid-area: right-panel;
       overflow-y: auto;
-      max-height: calc(100vh - 120px);
     }
     
     .footer-area {
       grid-area: footer;
+    }
+    
+    /* Responsive grid para mobile */
+    @media (max-width: 768px) {
+      .game-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr auto auto;
+        grid-template-areas: 
+          "header"
+          "center-panel"
+          "left-panel"
+          "right-panel"
+          "footer";
+      }
     }
 
     .hidden { 
@@ -241,13 +254,6 @@
       font-size: 1.1rem;
       margin: 8px 0;
       border-radius: var(--border-radius-md);
-    }
-
-    /* Botões pequenos para ações em cada jogador */
-    .btn-sm {
-      padding: 3px 6px;
-      font-size: 0.8rem;
-      border-radius: var(--border-radius-sm);
     }
     
     /* Grupo de botões */
@@ -444,26 +450,25 @@
       to { transform: scale(1.05); }
     }
 
-    /* PLAYER AVATAR */
+    /* PLAYERS LIST */
+    .players-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
     .player-item {
       background: #f5f5f5;
       padding: 8px 12px;
       border-radius: var(--border-radius-sm);
       display: flex;
-      flex-wrap: wrap;
       align-items: center;
       box-shadow: var(--shadow-sm);
-      margin-bottom: 5px;
     }
     
     .player-item.current {
       background: #e3f2fd;
       border-left: 3px solid var(--primary);
-    }
-    
-    .player-item.finger-power {
-      background: #fff8e1;
-      border-left: 3px solid var(--warning);
     }
     
     .player-avatar {
@@ -477,39 +482,15 @@
       color: white;
       font-weight: bold;
       margin-right: 10px;
-      position: relative;
-      overflow: hidden;
-      flex-shrink: 0;
-    }
-    
-    .player-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
     }
     
     .player-name {
       flex-grow: 1;
       font-weight: 500;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: calc(100% - 40px);
     }
     
     .player-badges {
       display: flex;
-      gap: 5px;
-      flex-wrap: wrap;
-      width: 100%;
-      margin-top: 5px;
-    }
-    
-    .player-actions {
-      width: 100%;
-      margin-top: 5px;
-      display: flex;
-      flex-wrap: wrap;
       gap: 5px;
     }
     
@@ -531,20 +512,17 @@
 
     /* CHAT */
     .chat-container {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
+      margin-top: 15px;
       border: 1px solid #e0e0e0;
       border-radius: var(--border-radius-md);
       overflow: hidden;
     }
     
     .chat-messages {
-      flex: 1;
+      height: 150px;
       overflow-y: auto;
       padding: 10px;
       background: #f9f9f9;
-      max-height: 150px;
     }
     
     .chat-input-group {
@@ -572,7 +550,6 @@
       border-radius: 8px;
       box-shadow: var(--shadow-sm);
       animation: fadeIn 0.3s ease-in-out;
-      word-break: break-word;
     }
     
     @keyframes fadeIn {
@@ -619,21 +596,6 @@
       box-shadow: var(--shadow-lg);
     }
     
-    /* QR CODE LOBBY */
-    #qrCodeLobby {
-      margin: 0 auto;
-      background-color: white;
-      padding: 8px;
-      border-radius: 8px;
-      max-width: 100%;
-    }
-
-    #qrCodeLobby canvas {
-      width: 100%;
-      height: auto;
-      max-width: 180px;
-    }
-    
     /* QR CODE */
     .qr-container {
       display: flex;
@@ -646,132 +608,76 @@
       box-shadow: var(--shadow-sm);
     }
     
-    /* PLAYER PHOTO CAPTURE */
-    .player-photo-container {
-      margin: 15px 0;
+    /* ANIMAÇÕES DE TRANSIÇÃO */
+    .fade-in {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    /* SEÇÃO DE ESCOLHA DE MODO */
+    .mode-selection {
       display: flex;
       flex-direction: column;
-      align-items: center;
+      gap: 15px;
     }
     
-    .photo-preview {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      overflow: hidden;
-      background-color: #f0f0f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 10px;
-      position: relative;
-      border: 3px solid var(--light);
-    }
-    
-    #photoPlaceholder {
-      font-size: 40px;
-      color: #aaa;
-    }
-    
-    #cameraPreview, #capturedPhoto {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .photo-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    /* PAINEL CENTRAL */
-    .main-panel-box {
-      flex: 1;
-      background: var(--white);
-      border: 2px solid var(--primary-light);
+    .mode-card {
+      background: white;
       border-radius: var(--border-radius-md);
-      padding: 15px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
+      overflow: hidden;
       box-shadow: var(--shadow-md);
+      transition: var(--transition-normal);
+      cursor: pointer;
     }
     
-    .event-log {
-      flex: 1;
-      overflow-y: auto;
-      font-size: 1.1rem;
+    .mode-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
     }
     
-    .event-log div {
-      padding: 8px;
-      margin-bottom: 5px;
-      border-radius: var(--border-radius-sm);
-      background: #f9f9f9;
-      border-left: 3px solid var(--primary-light);
-      animation: fadeIn 0.3s ease-in-out;
-      word-break: break-word;
-      white-space: normal;
+    .mode-card-header {
+      background: var(--primary);
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-family: var(--font-heading);
+    }
+    
+    .mode-card-host .mode-card-header {
+      background: var(--dark);
+    }
+    
+    .mode-card-player .mode-card-header {
+      background: var(--primary);
+    }
+    
+    .mode-card-body {
+      padding: 15px;
+      text-align: center;
+    }
+    
+    .mode-card-icon {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      color: var(--primary-dark);
     }
     
     /* RESPONSIVIDADE */
     @media (max-width: 768px) {
-      body, html {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        overflow: auto;
-      }
-      
-      #mainContainer {
-        width: 100%;
-        height: auto;
-        min-height: 100vh;
-        max-width: 100%;
-        margin: 0;
-        padding: 0;
-        border-radius: 0;
-      }
-      
-      #contentScroll {
-        padding: 5px;
-        overflow-y: auto;
-      }
-      
-      .section {
-        margin-bottom: 10px;
-        padding: 10px;
-      }
-      
-      button {
-        padding: 12px 15px;
-        margin: 4px 0;
-      }
-      
-      .game-grid {
-        display: flex;
+      .button-group {
         flex-direction: column;
-        height: auto;
       }
       
-      .left-panel, .right-panel, .center-panel {
-        width: 100%;
-        max-height: none;
-        overflow-y: visible;
+      .card-front {
+        width: 80px;
+        height: 112px;
       }
       
-      .center-panel {
-        order: 1;
+      .title {
+        font-size: 1.1rem;
       }
       
-      .left-panel {
-        order: 2;
-      }
-      
-      .right-panel {
-        order: 3;
+      .navbar h1 {
+        font-size: 1.2rem;
       }
     }
     
@@ -912,17 +818,10 @@
                   <div id="deckView"></div>
                 </div>
                 
-                <!-- Botão para novo baralho -->
-                <div style="text-align: center; margin-top: 10px;">
-                  <button id="btnNewDeck" class="btn-primary" style="display: none;">
-                    <i class="fas fa-sync-alt"></i> Novo Baralho
-                  </button>
-                </div>
-                
                 <!-- QR Code -->
                 <div style="margin-top: auto; padding-top: 15px;">
                   <div id="qrCodeGame" style="margin: 0 auto; width: fit-content;"></div>
-                  <p style="margin-top: 10px; font-size: 0.8em; color: #666; text-align: center;">Escaneie para entrar na partida</p>
+                  <p style="margin-top: 5px; font-size: 0.8em; color: #666; text-align: center;">Escaneie para entrar</p>
                 </div>
                 
                 <button id="btnEndGame" class="btn-danger" style="margin-top: 10px;">
@@ -1004,31 +903,7 @@
             <input type="text" id="inputPlayerName" placeholder="Digite seu nome..." />
           </div>
           
-          <!-- Área para câmera e captura de foto -->
-          <div class="player-photo-container">
-            <div class="photo-preview">
-              <div id="photoPlaceholder">
-                <i class="fas fa-camera"></i>
-              </div>
-              <video id="cameraPreview" autoplay playsinline style="display: none;"></video>
-              <canvas id="photoCanvas" style="display: none;"></canvas>
-              <img id="capturedPhoto" style="display: none;" />
-            </div>
-            
-            <div class="photo-buttons">
-              <button id="btnOpenCamera" class="btn-info">
-                <i class="fas fa-camera"></i> Tirar Foto
-              </button>
-              <button id="btnCapturePhoto" class="btn-success" style="display: none;">
-                <i class="fas fa-camera-retro"></i> Capturar
-              </button>
-              <button id="btnRetakePhoto" class="btn-warning" style="display: none;">
-                <i class="fas fa-redo"></i> Nova Foto
-              </button>
-            </div>
-          </div>
-          
-          <button id="btnJoinPlayerGame" class="btn-success btn-lg" style="margin-top: 15px;">
+          <button id="btnJoinPlayerGame" class="btn-success btn-lg">
             <i class="fas fa-check-circle"></i> Confirmar e Entrar
           </button>
         </div>
@@ -1171,88 +1046,6 @@
     </div>
   </div>
 
-  <script>
-    /* FUNÇÃO PARA LIMPAR CÓDIGO DA CARTA DO DOM */
-    function limparElementosDeTexto() {
-      // Remove qualquer texto que possa estar aparecendo incorretamente na página
-      const elementos = document.querySelectorAll("body > *:not(#mainContainer):not(script)");
-      for (let i = 0; i < elementos.length; i++) {
-        elementos[i].remove();
-      }
-    }
-
-    /* Verificar se está em um dispositivo móvel */
-    function isMobileDevice() {
-      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
-    }
-
-    /* Ajustar layout para dispositivos móveis */
-    function adjustLayoutForMobile() {
-      if (isMobileDevice()) {
-        console.log("Dispositivo móvel detectado, ajustando layout...");
-        document.body.classList.add('mobile-device');
-        
-        // Simplificar interface para dispositivos móveis
-        const elementsToHide = document.querySelectorAll('.desktop-only');
-        elementsToHide.forEach(el => el.classList.add('hidden'));
-        
-        // Aumentar tamanho de botões e textos para facilitar toque
-        const buttons = document.querySelectorAll('button');
-        buttons.forEach(btn => {
-          btn.classList.add('mobile-button');
-        });
-      }
-    }
-
-    /* Debug para dispositivos móveis */
-    function mobileDebug() {
-      if (isMobileDevice()) {
-        // Criar um elemento de debug que ficará visível apenas em caso de erro
-        const debugElement = document.createElement('div');
-        debugElement.id = 'mobile-debug';
-        debugElement.style.position = 'fixed';
-        debugElement.style.bottom = '0';
-        debugElement.style.left = '0';
-        debugElement.style.right = '0';
-        debugElement.style.background = 'rgba(0,0,0,0.7)';
-        debugElement.style.color = 'white';
-        debugElement.style.padding = '5px';
-        debugElement.style.fontSize = '10px';
-        debugElement.style.zIndex = '9999';
-        debugElement.style.maxHeight = '100px';
-        debugElement.style.overflow = 'auto';
-        debugElement.style.display = 'none';
-        document.body.appendChild(debugElement);
-        
-        // Sobrescrever console.error para mostrar erros no elemento de debug
-        const originalError = console.error;
-        console.error = function() {
-          debugElement.style.display = 'block';
-          debugElement.innerHTML += '<div>' + Array.from(arguments).join(' ') + '</div>';
-          originalError.apply(console, arguments);
-        };
-        
-        // Capturar erros não tratados
-        window.onerror = function(message, source, lineno, colno, error) {
-          debugElement.style.display = 'block';
-          debugElement.innerHTML += '<div>Error: ' + message + '</div>';
-          return false;
-        };
-      }
-    }
-
-    /* Executar ajustes quando o documento estiver carregado */
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log("Inicializando jogo...");
-      limparElementosDeTexto();
-      adjustLayoutForMobile();
-      mobileDebug();
-      
-      // Repetir periodicamente para garantir que nenhum texto apareça incorretamente
-      setInterval(limparElementosDeTexto, 5000);
-    });
-  </script>
-
 <script>
 /********** CONFIG DO FIREBASE **********/
 const firebaseConfig = {
@@ -1304,9 +1097,6 @@ const hostChatInput = document.getElementById('hostChatInput');
 const btnHostSendChat = document.getElementById('btnHostSendChat');
 const btnEndGame = document.getElementById('btnEndGame');
 
-// Botão para novo baralho
-const btnNewDeck = document.getElementById('btnNewDeck');
-
 // Player
 const playerArea = document.getElementById('playerArea');
 const playerStep1 = document.getElementById('playerStep1');
@@ -1316,15 +1106,6 @@ const btnEnterCodePlayer = document.getElementById('btnEnterCodePlayer');
 const playerRegister = document.getElementById('playerRegister');
 const inputPlayerName = document.getElementById('inputPlayerName');
 const btnJoinPlayerGame = document.getElementById('btnJoinPlayerGame');
-
-// Botões para foto do perfil
-const btnOpenCamera = document.getElementById('btnOpenCamera');
-const btnCapturePhoto = document.getElementById('btnCapturePhoto');
-const btnRetakePhoto = document.getElementById('btnRetakePhoto');
-const cameraPreview = document.getElementById('cameraPreview');
-const photoCanvas = document.getElementById('photoCanvas');
-const capturedPhoto = document.getElementById('capturedPhoto');
-const photoPlaceholder = document.getElementById('photoPlaceholder');
 
 const playerLobby = document.getElementById('playerLobby');
 const playerLobbyList = document.getElementById('playerLobbyList');
@@ -1358,9 +1139,6 @@ let myPlayerKey = null;
 let localCameraStream = null;
 let mediaRecorder = null;
 let recordedChunks = [];
-let playerPhoto = null; // Armazena a foto do jogador
-/* Declare a variável gameData (necessária para referência nas funções do host) */
-let gameData = null;
 
 /********** EVENTOS BÁSICOS **********/
 // Modo de seleção com cliques nos cards também
@@ -1384,14 +1162,6 @@ btnPlayer.onclick = () => {
   modeSelect.classList.add('hidden');
   playerArea.classList.remove('hidden');
 };
-
-// Câmera para foto de perfil
-btnOpenCamera.onclick = openPlayerCamera;
-btnCapturePhoto.onclick = capturePlayerPhoto;
-btnRetakePhoto.onclick = retakePlayerPhoto;
-
-// Novo baralho
-btnNewDeck.onclick = createNewDeck;
 
 // Host
 btnCreateGame.onclick = createGameAsHost;
@@ -1447,22 +1217,6 @@ inputPlayerName.addEventListener('keypress', (e) => {
   }
 });
 
-/********** LIMPEZA DE CACHE DO JOGADOR **********/
-function clearPlayerCache() {
-  console.log("Limpando cache do jogador...");
-  localStorage.removeItem("opoderdedo_gameId");
-  localStorage.removeItem("opoderdedo_playerKey");
-  localStorage.removeItem("opoderdedo_playerName");
-  localStorage.removeItem("opoderdedo_playerPhoto");
-  
-  // Também limpar quaisquer outras variáveis de estado
-  gameCode = null;
-  myPlayerKey = null;
-  playerPhoto = null;
-  
-  console.log("Cache do jogador limpo com sucesso");
-}
-
 /********** CHECK LOCALSTORAGE DO PLAYER **********/
 (async function checkLocalStoragePlayer(){
   const savedId = localStorage.getItem("opoderdedo_gameId");
@@ -1471,87 +1225,22 @@ function clearPlayerCache() {
     // Verifica no DB
     const snap = await db.ref(`games/${savedId}/players/${savedKey}`).once('value');
     if(snap.exists()){
-      // Verifica se a partida ainda está ativa
-      const gameSnap = await db.ref(`games/${savedId}`).once('value');
-      if(gameSnap.exists() && gameSnap.val().status !== 'finished'){
-        // Reconectar
-        gameCode = savedId;
-        myPlayerKey = savedKey;
-        db.ref(`games/${gameCode}`).on('value', s=>{
-          if(!s.exists())return;
-          updatePlayerView(s.val());
-        });
-        // Ajusta telas
-        modeSelect.classList.add('hidden');
-        playerArea.classList.remove('hidden');
-        playerStep1.classList.add('hidden');
-        playerRegister.classList.add('hidden');
-      } else {
-        // Limpa dados se partida finalizada
-        clearPlayerCache();
-      }
+      // Reconectar
+      gameCode = savedId;
+      myPlayerKey = savedKey;
+      db.ref(`games/${gameCode}`).on('value', s=>{
+        if(!s.exists())return;
+        updatePlayerView(s.val());
+      });
+      // Ajusta telas
+      modeSelect.classList.add('hidden');
+      playerArea.classList.remove('hidden');
+      playerStep1.classList.add('hidden');
+      playerRegister.classList.add('hidden');
     } else {
-      clearPlayerCache();
+      localStorage.removeItem("opoderdedo_gameId");
+      localStorage.removeItem("opoderdedo_playerKey");
     }
-  }
-})();
-
-/********** MODO JOGADOR VIA QR CODE **********/
-// Esta função é executada automaticamente ao carregar a página
-(function checkUrlForGameId(){
-  console.log("Verificando URL para gameId...");
-  try {
-    const params = new URLSearchParams(window.location.search);
-    if(params.has('gameId')){
-      const code = params.get('gameId');
-      console.log("QR Code detectado:", code);
-      if(code && code.length > 0){
-        // O jogador escaneou o QR code, esconde a seleção de modo
-        modeSelect.classList.add('hidden');
-        // Mostra a área do jogador
-        playerArea.classList.remove('hidden');
-        // Oculta a tela de inserção de código (já temos o código)
-        playerStep1.classList.add('hidden');
-        // Mostra diretamente a tela de registro
-        playerRegister.classList.remove('hidden');
-        
-        // Define o gameCode globalmente
-        gameCode = code;
-        
-        console.log("Preparado para registro de jogador com código:", gameCode);
-        
-        // Verifica se o jogo existe e está ativo
-        db.ref(`games/${code}`).once('value')
-          .then(snap => {
-            if(!snap.exists()){
-              console.error("Jogo não encontrado");
-              alert("Partida não encontrada!");
-              modeSelect.classList.remove('hidden');
-              playerArea.classList.add('hidden');
-              return;
-            }
-            
-            const gameData = snap.val();
-            if (gameData.status === 'finished') {
-              console.error("Jogo encerrado");
-              alert("Esta partida já foi encerrada!");
-              modeSelect.classList.remove('hidden');
-              playerArea.classList.add('hidden');
-              return;
-            }
-            
-            console.log("Jogo verificado e ativo!");
-          })
-          .catch(error => {
-            console.error("Erro ao verificar jogo:", error);
-            alert("Erro ao verificar o jogo: " + error.message);
-            modeSelect.classList.remove('hidden');
-            playerArea.classList.add('hidden');
-          });
-      }
-    }
-  } catch (error) {
-    console.error("Erro ao processar parâmetros da URL:", error);
   }
 })();
 
@@ -1640,7 +1329,6 @@ function subscribeHost(code){
       renderHostGame(data);
     } else if(data.status==='finished'){
       alert("Partida Encerrada!");
-      clearPlayerCache();
       location.reload(); // Recarrega para voltar à tela inicial
     }
   });
@@ -1652,24 +1340,12 @@ function renderHostLobby(data){
   if (players.length === 0) {
     hostPlayersList.innerHTML = '<div style="text-align: center; color: #888;"><i class="fas fa-info-circle"></i> Nenhum jogador conectado ainda</div>';
   } else {
-    hostPlayersList.innerHTML = players.map((p, index) => {
-      let avatarContent = p.name.charAt(0).toUpperCase();
-      
-      // Usa foto do perfil se disponível
-      let avatarHtml = '';
-      if (p.photo) {
-        avatarHtml = `<img src="${p.photo}" alt="${p.name}" />`;
-      } else {
-        avatarHtml = avatarContent;
-      }
-      
-      return `
-        <div class="player-item">
-          <div class="player-avatar">${avatarHtml}</div>
-          <div class="player-name">${p.name}</div>
-        </div>
-      `;
-    }).join('');
+    hostPlayersList.innerHTML = players.map((p, index) => `
+      <div class="player-item">
+        <div class="player-avatar">${p.name.charAt(0).toUpperCase()}</div>
+        <div class="player-name">${p.name}</div>
+      </div>
+    `).join('');
   }
   
   // Ativar botão quando tiver jogadores
@@ -1699,11 +1375,8 @@ function startGameHost(){
     });
 }
 
-function renderHostGame(data) {
-  // Armazena os dados do jogo na variável global
-  gameData = data;
-  
-  const players = Object.values(data.players || {});
+function renderHostGame(data){
+  const players = Object.values(data.players||{});
   const currPlayer = players[data.currentPlayerIndex];
   const currName = currPlayer?.name || '???';
   
@@ -1720,13 +1393,6 @@ function renderHostGame(data) {
   deckCount.innerHTML = `<i class="fas fa-layer-group"></i> Cartas restantes: <strong>${remainingCards}</strong>`;
   
   deckView.innerHTML = (data.deck||[]).map(() => `<div class="card-back"></div>`).join('');
-  
-  // Mostrar botão de novo baralho quando estiver vazio
-  if (!data.deck || data.deck.length === 0) {
-    btnNewDeck.style.display = 'inline-block';
-  } else {
-    btnNewDeck.style.display = 'none';
-  }
 
   if(data.currentCard){
     currentCardHost.innerHTML = renderCard(data.currentCard.rank, data.currentCard.suit);
@@ -1743,24 +1409,11 @@ function renderHostGame(data) {
   // Lista de jogadores - destaque para quem tem poder do dedo
   hostPlayersStatus.innerHTML = players.map((p, i) => {
     const isCurrent = (i === data.currentPlayerIndex);
-    let avatarContent = p.name.charAt(0).toUpperCase();
-    
-    // Usa foto do perfil se disponível
-    let avatarHtml = '';
-    if (p.photo) {
-      avatarHtml = `<img src="${p.photo}" alt="${p.name}" />`;
-    } else {
-      avatarHtml = avatarContent;
-    }
-    
+    const avatarLetter = p.name.charAt(0).toUpperCase();
     let html = `<div class="player-item ${isCurrent ? 'current' : ''} ${p.hasFingerPower ? 'finger-power' : ''}">
-      <div class="player-avatar" ${p.hasFingerPower ? 'style="background: var(--warning); color: var(--dark);"' : ''}>
-        ${avatarHtml}
-      </div>
-      <div class="player-name">${p.name}</div>`;
-    
-    // Badges na linha abaixo para melhor visualização em telas pequenas
-    html += `<div class="player-badges">`;
+      <div class="player-avatar" ${p.hasFingerPower ? 'style="background: var(--warning); color: var(--dark);"' : ''}>${avatarLetter}</div>
+      <div class="player-name">${p.name}</div>
+      <div class="player-badges">`;
     
     if (isCurrent) {
       html += `<span class="badge badge-turn"><i class="fas fa-play"></i> Vez</span>`;
@@ -1774,41 +1427,9 @@ function renderHostGame(data) {
       html += `<span class="badge" style="background-color: var(--warning); color: var(--dark);"><i class="fas fa-hand-point-up"></i> Poder do Dedo</span>`;
     }
     
-    html += `</div>`;
-    
-    // Adicionar botões de ação para o organizador
-    html += `<div class="player-actions">`;
-    
-    if (p.jokers && p.jokers > 0) {
-      html += `<button class="btn-sm btn-info use-joker-host" data-player="${i}">
-        <i class="fas fa-magic"></i> Usar Coringa
-      </button>`;
-    }
-    
-    if (p.hasFingerPower) {
-      html += `<button class="btn-sm btn-warning activate-finger-host" data-player="${i}">
-        <i class="fas fa-hand-point-up"></i> Ativar Poder
-      </button>`;
-    }
-    
     html += `</div></div>`;
     return html;
   }).join('');
-  
-  // Adicionar event listeners para os botões de ação
-  document.querySelectorAll('.use-joker-host').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const playerIndex = this.getAttribute('data-player');
-      useJokerAsHost(playerIndex);
-    });
-  });
-  
-  document.querySelectorAll('.activate-finger-host').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const playerIndex = this.getAttribute('data-player');
-      activateFingerAsHost(playerIndex);
-    });
-  });
 
   // Painel de eventos - centralizado e destacado
   if(data.logs && data.logs.length > 0){
@@ -1897,12 +1518,6 @@ async function drawCardHost(){
 function endGameHost(){
   if (confirm("Tem certeza que deseja encerrar a partida?")) {
     db.ref(`games/${gameCode}`).update({status: 'finished'})
-      .then(() => {
-        // Limpar cache do organizador também
-        clearPlayerCache();
-        alert("Partida encerrada com sucesso!");
-        setTimeout(() => location.reload(), 1000);
-      })
       .catch(error => alert("Erro ao encerrar partida: " + error.message));
   }
 }
@@ -1918,26 +1533,6 @@ function sendChatAsHost(){
     db.ref(`games/${gameCode}/chat`).set(arr)
       .catch(error => alert("Erro ao enviar mensagem: " + error.message));
   });
-}
-
-/********** FUNÇÃO PARA NOVO BARALHO **********/
-function createNewDeck() {
-  btnNewDeck.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
-  btnNewDeck.disabled = true;
-  
-  const newDeck = generateDeck();
-  
-  db.ref(`games/${gameCode}/deck`).set(newDeck)
-    .then(() => {
-      addLog("🎴 Novo baralho gerado pelo organizador!");
-      btnNewDeck.innerHTML = '<i class="fas fa-sync-alt"></i> Novo Baralho';
-      btnNewDeck.disabled = false;
-    })
-    .catch(error => {
-      alert("Erro ao gerar novo baralho: " + error.message);
-      btnNewDeck.innerHTML = '<i class="fas fa-sync-alt"></i> Novo Baralho';
-      btnNewDeck.disabled = false;
-    });
 }
 
 /********** EFEITOS DE CARTA **********/
@@ -2035,45 +1630,20 @@ function sendDrinkAlert(playerIndex, gameData){
   db.ref(`games/${gameCode}/players/${pKey}/needsToDrink`).set(Date.now());
 }
 
-/********** FUNÇÕES DO ORGANIZADOR PARA AÇÕES DE JOGADORES **********/
-function useJokerAsHost(playerIndex) {
-  const allKeys = Object.keys(gameData?.players || {});
-  const playerKey = allKeys[playerIndex];
-  
-  if (!playerKey) return;
-  
-  db.ref(`games/${gameCode}/players/${playerKey}`).once('value', snap => {
-    const p = snap.val();
-    if (!p || p.jokers <= 0) return;
-    
-    db.ref(`games/${gameCode}/players/${playerKey}/jokers`).set(p.jokers - 1);
-    addLog(`🃏 ${p.name} usou 1 Coringa (acionado pelo organizador)`);
-  });
-}
+/********** MODO JOGADOR **********/
+(function checkUrlForGameId(){
+  const params = new URLSearchParams(location.search);
+  if(params.has('gameId')){
+    const code = params.get('gameId');
+    if(code){
+      modeSelect.classList.add('hidden');
+      playerArea.classList.remove('hidden');
+      inputGameCodePlayer.value = code;
+      enterCodePlayer();
+    }
+  }
+})();
 
-function activateFingerAsHost(playerIndex) {
-  const allKeys = Object.keys(gameData?.players || {});
-  const playerKey = allKeys[playerIndex];
-  
-  if (!playerKey) return;
-  
-  db.ref(`games/${gameCode}/players/${playerKey}`).once('value', snap => {
-    const p = snap.val();
-    if (!p || !p.hasFingerPower) return;
-    
-    const name = p.name || 'Jogador';
-    db.ref(`games/${gameCode}/fingerPower`).set({
-      active: true, 
-      owner: playerKey,
-      queue: [{playerKey: playerKey, name}]
-    });
-    
-    db.ref(`games/${gameCode}/players/${playerKey}/hasFingerPower`).set(false);
-    addLog(`👆 ${name} ativou o Poder do Dedo! (acionado pelo organizador)`);
-  });
-}
-
-/********** FUNÇÕES DE JOGADOR **********/
 function enterCodePlayer(){
   const code = inputGameCodePlayer.value.trim();
   if(!code) {
@@ -2084,162 +1654,528 @@ function enterCodePlayer(){
   btnEnterCodePlayer.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
   btnEnterCodePlayer.disabled = true;
   
-  db.ref(`games/${code}`).once('value')
-    .then(snap => {
-      btnEnterCodePlayer.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar na Partida';
-      btnEnterCodePlayer.disabled = false;
-      
-      if(!snap.exists()){
-        alert("Partida não encontrada!");
-        return;
-      }
-      
-      const gameData = snap.val();
-      if (gameData.status === 'finished') {
-        alert("Esta partida já foi encerrada!");
-        return;
-      }
-      
-      // Define o código do jogo e avança para a tela de registro
-      gameCode = code;
-      playerStep1.classList.add('hidden');
-      playerRegister.classList.remove('hidden');
-      
-      console.log("Código verificado, mostrou tela de registro");
-    })
-    .catch(error => {
-      console.error("Erro ao verificar código:", error);
-      alert("Erro ao verificar código: " + error.message);
-      btnEnterCodePlayer.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar na Partida';
-      btnEnterCodePlayer.disabled = false;
-    });
-}
-
-function openPlayerCamera() {
-  console.log("Tentando abrir a câmera do jogador...");
-  try {
-    // Verificar se a API da câmera está disponível
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      console.error("API de câmera não suportada neste dispositivo");
-      alert("Seu dispositivo não suporta acesso à câmera.");
-      btnOpenCamera.innerHTML = '<i class="fas fa-times"></i> Câmera indisponível';
-      btnOpenCamera.disabled = true;
+  db.ref(`games/${code}`).once('value', snap => {
+    btnEnterCodePlayer.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar na Partida';
+    btnEnterCodePlayer.disabled = false;
+    
+    if(!snap.exists()){
+      alert("Partida não encontrada!");
       return;
     }
     
-    // Tenta primeiro a câmera frontal
-    navigator.mediaDevices.getUserMedia({ 
-      video: { 
-        facingMode: "user",
-        width: { ideal: 320 },
-        height: { ideal: 320 }
-      } 
-    })
-    .then(stream => {
-      console.log("Câmera aberta com sucesso");
-      cameraPreview.srcObject = stream;
-      cameraPreview.style.display = 'block';
-      photoPlaceholder.style.display = 'none';
-      btnOpenCamera.style.display = 'none';
-      btnCapturePhoto.style.display = 'inline-block';
-      localCameraStream = stream;
-    })
-    .catch(err => {
-      console.warn("Erro na câmera frontal, tentando qualquer câmera:", err);
-      // Tenta qualquer câmera disponível
-      return navigator.mediaDevices.getUserMedia({ video: true });
-    })
-    .then(stream => {
-      if (stream) {
-        console.log("Câmera alternativa aberta com sucesso");
-        cameraPreview.srcObject = stream;
-        cameraPreview.style.display = 'block';
-        photoPlaceholder.style.display = 'none';
-        btnOpenCamera.style.display = 'none';
-        btnCapturePhoto.style.display = 'inline-block';
-        localCameraStream = stream;
-      }
-    })
-    .catch(err => {
-      console.error("Erro ao acessar qualquer câmera:", err);
-      alert("Não foi possível acessar a câmera: " + err.message);
-      // Continua sem câmera
-      btnOpenCamera.innerHTML = '<i class="fas fa-times"></i> Câmera indisponível';
-      btnOpenCamera.disabled = true;
-    });
-  } catch (err) {
-    console.error("Erro geral ao acessar câmera:", err);
-    alert("Erro ao tentar acessar a câmera: " + err.message);
-    btnOpenCamera.innerHTML = '<i class="fas fa-times"></i> Câmera indisponível';
-    btnOpenCamera.disabled = true;
-  }
+    const gameData = snap.val();
+    if (gameData.status === 'finished') {
+      alert("Esta partida já foi encerrada!");
+      return;
+    }
+    
+    gameCode = code;
+    playerStep1.classList.add('hidden');
+    playerRegister.classList.remove('hidden');
+  }).catch(error => {
+    alert("Erro ao verificar código: " + error.message);
+    btnEnterCodePlayer.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar na Partida';
+    btnEnterCodePlayer.disabled = false;
+  });
 }
 
-function capturePlayerPhoto() {
-  console.log("Tentando capturar foto...");
-  if (!cameraPreview.srcObject) {
-    console.error("Sem stream de câmera para capturar foto");
+async function registerPlayerInGame(){
+  const name = inputPlayerName.value.trim();
+  if(!name) {
+    alert("Digite seu nome!");
     return;
   }
   
+  btnJoinPlayerGame.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Entrando...';
+  btnJoinPlayerGame.disabled = true;
+  
   try {
-    const context = photoCanvas.getContext('2d');
+    // Cria player
+    const ref = db.ref(`games/${gameCode}/players`).push();
+    myPlayerKey = ref.key;
+    await ref.set({
+      name, 
+      jokers: 0,
+      hasFingerPower: false
+    });
+
+    localStorage.setItem("opoderdedo_gameId", gameCode);
+    localStorage.setItem("opoderdedo_playerKey", myPlayerKey);
+    localStorage.setItem("opoderdedo_playerName", name);
+
+    db.ref(`games/${gameCode}`).on('value', s => {
+      if(!s.exists()) return;
+      updatePlayerView(s.val());
+    });
+
+    playerRegister.classList.add('hidden');
     
-    // Ajusta as dimensões do canvas para corresponder às dimensões do vídeo
-    const videoWidth = cameraPreview.videoWidth || 320;
-    const videoHeight = cameraPreview.videoHeight || 240;
-    
-    console.log("Dimensões do vídeo:", videoWidth, "x", videoHeight);
-    
-    photoCanvas.width = videoWidth;
-    photoCanvas.height = videoHeight;
-    
-    // Desenha a imagem da câmera no canvas (sem recorte para evitar problemas)
-    context.drawImage(cameraPreview, 0, 0, photoCanvas.width, photoCanvas.height);
-    
-    // Converte para base64 (tamanho menor para economizar espaço)
-    try {
-      playerPhoto = photoCanvas.toDataURL('image/jpeg', 0.7); // 70% de qualidade
-      console.log("Foto capturada com sucesso");
-    } catch (e) {
-      console.error("Erro ao converter canvas para dataURL:", e);
-      return;
-    }
-    
-    // Exibe a imagem capturada
-    capturedPhoto.src = playerPhoto;
-    capturedPhoto.style.display = 'block';
-    cameraPreview.style.display = 'none';
-    
-    // Atualiza botões
-    btnCapturePhoto.style.display = 'none';
-    btnRetakePhoto.style.display = 'inline-block';
-    
-    // Para a stream da câmera para economizar recursos
-    if (localCameraStream) {
-      localCameraStream.getTracks().forEach(track => track.stop());
-    }
-  } catch (e) {
-    console.error("Erro ao capturar foto:", e);
-    alert("Erro ao capturar foto. Tente novamente ou continue sem foto.");
-    
-    // Continuar sem foto
-    btnOpenCamera.style.display = 'inline-block';
-    btnCapturePhoto.style.display = 'none';
-    btnRetakePhoto.style.display = 'none';
-    
-    if (localCameraStream) {
-      localCameraStream.getTracks().forEach(track => track.stop());
-    }
+  } catch (error) {
+    alert("Erro ao entrar na partida: " + error.message);
+    btnJoinPlayerGame.innerHTML = '<i class="fas fa-check-circle"></i> Confirmar e Entrar';
+    btnJoinPlayerGame.disabled = false;
   }
 }
 
-function retakePlayerPhoto() {
-  capturedPhoto.style.display = 'none';
-  btnRetakePhoto.style.display = 'none';
-  btnOpenCamera.style.display = 'inline-block';
-  playerPhoto = null;
+function updatePlayerView(gameData){
+  if(gameData.status === 'lobby'){
+    playerLobby.classList.remove('hidden');
+    playerGame.classList.add('hidden');
+    
+    const players = Object.values(gameData.players || {});
+    
+    if (players.length === 0) {
+      playerLobbyList.innerHTML = '<div style="text-align: center; color: #888;"><i class="fas fa-info-circle"></i> Nenhum outro jogador conectado</div>';
+    } else {
+      playerLobbyList.innerHTML = players.map(p => `
+        <div class="player-item">
+          <div class="player-avatar">${p.name.charAt(0).toUpperCase()}</div>
+          <div class="player-name">${p.name}</div>
+        </div>
+      `).join('');
+    }
+  }
+  else if(gameData.status === 'ongoing'){
+    playerLobby.classList.add('hidden');
+    playerGame.classList.remove('hidden');
+
+    const pObj = gameData.players?.[myPlayerKey];
+    if(!pObj){
+      playerStatusPanel.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Você não está no jogo!';
+      playerStatusPanel.classList.remove('hidden');
+      return;
+    }
+    
+    // Info do player
+    playerStatusPanel.classList.remove('hidden');
+    playerStatusPanel.style.color = 'var(--primary-dark)';
+    playerStatusPanel.innerHTML = '';
+
+    // Jogadores - destaque para quem tem poder do dedo
+    const players = Object.values(gameData.players || {});
+    
+    playerListStatus.innerHTML = players.map((pp, i) => {
+      const isCurrent = (i === gameData.currentPlayerIndex);
+      const avatarLetter = pp.name.charAt(0).toUpperCase();
+      
+      let html = `<div class="player-item ${isCurrent ? 'current' : ''} ${pp.hasFingerPower ? 'finger-power' : ''}">
+        <div class="player-avatar" ${pp.hasFingerPower ? 'style="background: var(--warning); color: var(--dark);"' : ''}>${avatarLetter}</div>
+        <div class="player-name">${pp.name}</div>
+        <div class="player-badges">`;
+      
+      if (isCurrent) {
+        html += `<span class="badge badge-turn"><i class="fas fa-play"></i> Vez</span>`;
+      }
+      
+      if (pp.jokers && pp.jokers > 0) {
+        html += `<span class="badge badge-joker"><i class="fas fa-magic"></i> ${pp.jokers}</span>`;
+      }
+      
+      if (pp.hasFingerPower) {
+        html += `<span class="badge" style="background-color: var(--warning); color: var(--dark);"><i class="fas fa-hand-point-up"></i> Poder do Dedo</span>`;
+      }
+      
+      html += `</div></div>`;
+      return html;
+    }).join('');
+
+    // Deck
+    const remainingCards = gameData.deck ? gameData.deck.length : 0;
+    deckCountPlayer.innerHTML = `<i class="fas fa-layer-group"></i> Cartas restantes: <strong>${remainingCards}</strong>`;
+    deckViewPlayer.innerHTML = (gameData.deck || []).map(() => `<div class="card-back"></div>`).join('');
+
+    // Quem é o atual
+    const allKeys = Object.keys(gameData.players || {});
+    const curIdx = gameData.currentPlayerIndex;
+    const curKey = allKeys[curIdx];
+    
+    if(curKey === myPlayerKey){
+      // é minha vez
+      playerStatusPanel.innerHTML = '<i class="fas fa-user-clock"></i> É A SUA VEZ!';
+      playerStatusPanel.style.color = 'var(--success)';
+      btnDrawCardPlayer.style.display = 'inline-block';
+      
+      if (!gameData.deck || gameData.deck.length === 0) {
+        btnDrawCardPlayer.disabled = true;
+        btnDrawCardPlayer.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Baralho vazio';
+      } else {
+        btnDrawCardPlayer.disabled = false;
+        btnDrawCardPlayer.innerHTML = '<i class="fas fa-hand-paper"></i> Puxar Carta';
+      }
+    } else {
+      const currentPlayer = players[curIdx]?.name || '???';
+      playerStatusPanel.innerHTML = `<i class="fas fa-user-clock"></i> É a vez de: <strong>${currentPlayer}</strong>`;
+      btnDrawCardPlayer.style.display = 'none';
+    }
+
+    // Carta Atual
+    if(gameData.currentCard){
+      currentCardPlayer.innerHTML = renderCard(gameData.currentCard.rank, gameData.currentCard.suit);
+    } else {
+      currentCardPlayer.innerHTML = `<div style="text-align: center; color: #888; margin: 20px 0;"><i class="fas fa-info-circle"></i> Nenhuma carta jogada ainda</div>`;
+    }
+
+    // Regras
+    if(gameData.rules && gameData.rules.length > 0){
+      playerRules.innerHTML = gameData.rules.map(r => `<div class="rule-item">${r}</div>`).join('');
+    } else {
+      playerRules.innerHTML = `<div style="text-align: center; color: #888; padding: 10px;"><i class="fas fa-info-circle"></i> Nenhuma regra definida</div>`;
+    }
+
+    // Jogador tem finger? - mostrar de forma mais proeminente
+    if (pObj.hasFingerPower) {
+      btnActivateFinger.style.display = 'inline-block';
+      btnActivateFinger.innerHTML = '<i class="fas fa-hand-point-up"></i> Ativar Poder do Dedo';
+      btnActivateFinger.className = 'btn-warning';
+      // Adicionar animação para chamar atenção
+      btnActivateFinger.classList.add('animate-pulse');
+      
+      // Indica no status panel também
+      if (playerStatusPanel.innerHTML.indexOf('Poder do Dedo') === -1) {
+        playerStatusPanel.innerHTML += `<div style="margin-top: 5px;"><i class="fas fa-hand-point-up"></i> Você tem o <strong>Poder do Dedo</strong> - Use quando quiser!</div>`;
+      }
+    } else {
+      btnActivateFinger.style.display = 'none';
+      btnActivateFinger.classList.remove('animate-pulse');
+    }
+    
+    // Jogador tem coringa?
+    btnUseJoker.style.display = (pObj.jokers > 0) ? 'inline-block' : 'none';
+    if (pObj.jokers > 0) {
+      btnUseJoker.innerHTML = `<i class="fas fa-magic"></i> Usar Coringa (${pObj.jokers})`;
+    }
+
+    // Finger Power Global
+    const fp = gameData.fingerPower || {};
+    if(fp.active){
+      fingerBox.classList.remove('hidden');
+      const found = (fp.queue || []).find(x => x.playerKey === myPlayerKey);
+      
+      if(found){
+        btnFingerClick.disabled = true;
+        btnFingerClick.innerHTML = '<i class="fas fa-check-circle"></i> Você já clicou!';
+      } else {
+        btnFingerClick.disabled = false;
+        btnFingerClick.innerHTML = '<i class="fas fa-bolt"></i> CLIQUE AGORA!';
+      }
+      
+      fingerQueue.innerHTML = (fp.queue || []).map((x, i) => `${i+1}º: <strong>${x.name}</strong>`).join('<br>');
+    } else {
+      fingerBox.classList.add('hidden');
+    }
+
+    // Painel de eventos - centralizado e destacado
+    if(gameData.logs && gameData.logs.length > 0){
+      playerPainel.innerHTML = gameData.logs.map(l => `<div>${l}</div>`).join('');
+      playerPainel.scrollTop = playerPainel.scrollHeight;
+    } else {
+      playerPainel.innerHTML = `<div style="text-align: center; color: #888;"><i class="fas fa-info-circle"></i> Nenhum evento registrado</div>`;
+    }
+    
+    // Chat
+    if(gameData.chat && gameData.chat.length > 0){
+      playerChat.innerHTML = gameData.chat.map(c => {
+        const isHost = c.from === 'HOST';
+        return `<div class="chat-message ${isHost ? 'host-message' : ''}">
+          <strong>${c.from}:</strong> ${c.text}
+        </div>`;
+      }).join('');
+      playerChat.scrollTop = playerChat.scrollHeight;
+    } else {
+      playerChat.innerHTML = `<div style="text-align: center; color: #888; padding: 20px;"><i class="fas fa-comments"></i> Nenhuma mensagem ainda</div>`;
+    }
+
+    // Needs to Drink?
+    if(pObj.needsToDrink){
+      alert("🍺 Você precisa beber!");
+      db.ref(`games/${gameCode}/players/${myPlayerKey}/needsToDrink`).remove();
+    }
+  }
+  else if(gameData.status === 'finished'){
+    alert("Esta partida foi encerrada!");
+    setTimeout(() => location.reload(), 1000); // Recarrega após o alerta
+  }
 }
 
-function registerPlayerInGame() {
-  const name = inputPlayerName.value.
+async function drawCardPlayer(){
+  btnDrawCardPlayer.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Puxando...';
+  btnDrawCardPlayer.disabled = true;
+  
+  try {
+    const snap = await db.ref(`games/${gameCode}`).once('value');
+    const data = snap.val();
+    if(!data) return;
+    
+    const allKeys = Object.keys(data.players || {});
+    if(allKeys[data.currentPlayerIndex] !== myPlayerKey){
+      alert("Não é sua vez de puxar carta!");
+      btnDrawCardPlayer.innerHTML = '<i class="fas fa-hand-paper"></i> Puxar Carta';
+      btnDrawCardPlayer.disabled = false;
+      return;
+    }
+    
+    if(!data.deck || data.deck.length === 0){
+      addLog("Baralho acabou!");
+      btnDrawCardPlayer.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Baralho vazio';
+      btnDrawCardPlayer.disabled = true;
+      return;
+    }
+    
+    const card = data.deck[0];
+    const newDeck = data.deck.slice(1);
+    handleCardEffect(card, data);
+    
+    await db.ref(`games/${gameCode}`).update({
+      deck: newDeck, 
+      currentCard: card
+    });
+  } catch (error) {
+    alert("Erro ao puxar carta: " + error.message);
+  } finally {
+    btnDrawCardPlayer.innerHTML = '<i class="fas fa-hand-paper"></i> Puxar Carta';
+    btnDrawCardPlayer.disabled = false;
+  }
+}
+
+/********** CORINGA, PODER DEDO **********/
+function useJokerPlayer(){
+  btnUseJoker.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+  btnUseJoker.disabled = true;
+  
+  db.ref(`games/${gameCode}/players/${myPlayerKey}`).once('value', snap => {
+    const p = snap.val();
+    if(!p) return;
+    
+    if(p.jokers > 0){
+      db.ref(`games/${gameCode}/players/${myPlayerKey}/jokers`).set(p.jokers - 1);
+      addLog(`🃏 ${p.name} usou 1 Coringa para não beber!`);
+      setTimeout(() => {
+        btnUseJoker.innerHTML = '<i class="fas fa-magic"></i> Usar Coringa';
+        btnUseJoker.disabled = false;
+      }, 500);
+    } else {
+      btnUseJoker.style.display = 'none';
+    }
+  });
+}
+
+function activateFingerPower(){
+  btnActivateFinger.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+  btnActivateFinger.disabled = true;
+  
+  const name = localStorage.getItem("opoderdedo_playerName") || 'Jogador';
+  db.ref(`games/${gameCode}/fingerPower`).set({
+    active: true, 
+    owner: myPlayerKey,
+    queue: [{playerKey: myPlayerKey, name}]
+  });
+  
+  db.ref(`games/${gameCode}/players/${myPlayerKey}/hasFingerPower`).set(false);
+  addLog(`👆 ${name} ativou o Poder do Dedo!`);
+  
+  // Desativa o botão e depois esconde após animação
+  setTimeout(() => {
+    btnActivateFinger.style.display = 'none';
+    btnActivateFinger.disabled = false;
+    btnActivateFinger.innerHTML = '<i class="fas fa-hand-point-up"></i> Poder do Dedo (8)';
+  }, 500);
+  
+  // Não finaliza automaticamente - o organizador pode finalizar manualmente
+}
+
+function fingerClick(){
+  btnFingerClick.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+  btnFingerClick.disabled = true;
+  
+  db.ref(`games/${gameCode}/fingerPower/queue`).once('value', snap => {
+    let arr = snap.val() || [];
+    if(arr.find(x => x.playerKey === myPlayerKey)) return;
+    
+    const name = localStorage.getItem("opoderdedo_playerName") || 'Jogador';
+    arr.push({playerKey: myPlayerKey, name});
+    db.ref(`games/${gameCode}/fingerPower/queue`).set(arr)
+      .then(() => {
+        btnFingerClick.innerHTML = '<i class="fas fa-check-circle"></i> Você já clicou!';
+      })
+      .catch(error => {
+        alert("Erro ao registrar clique: " + error.message);
+        btnFingerClick.innerHTML = '<i class="fas fa-bolt"></i> CLIQUE AGORA!';
+        btnFingerClick.disabled = false;
+      });
+  });
+}
+
+function finalizeFingerPower(){
+  db.ref(`games/${gameCode}/fingerPower`).once('value', snap => {
+    const fp = snap.val();
+    if(!fp || !fp.queue || fp.queue.length === 0) return;
+    
+    const last = fp.queue[fp.queue.length - 1];
+    addLog(`⏱️ O último a clicar foi ${last.name}, beba!`);
+    db.ref(`games/${gameCode}/players/${last.playerKey}/needsToDrink`).set(Date.now());
+    db.ref(`games/${gameCode}/fingerPower`).update({active: false, queue: []});
+  });
+}
+
+/********** GRAVAÇÃO VÍDEO **********/
+async function startVideoRecording(){
+  btnStartRecording.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inicializando...';
+  btnStartRecording.disabled = true;
+  
+  try {
+    if(!localCameraStream){
+      localCameraStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+      videoPreview.srcObject = localCameraStream;
+    }
+    
+    recordedChunks = [];
+    mediaRecorder = new MediaRecorder(localCameraStream);
+    
+    mediaRecorder.ondataavailable = e => {
+      if(e.data.size > 0) recordedChunks.push(e.data);
+    };
+    
+    mediaRecorder.onstop = async () => {
+      btnStopRecording.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+      btnStopRecording.disabled = true;
+      
+      if(recordedChunks.length > 0){
+        try {
+          const blob = new Blob(recordedChunks, {type: 'video/mp4'});
+          const ref = storage.ref(`games/${gameCode}/videos/${Date.now()}.mp4`);
+          await ref.put(blob);
+          const url = await ref.getDownloadURL();
+          addLog(`📹 Vídeo gravado! URL: ${url}`);
+          
+          alert("Vídeo salvo com sucesso!");
+        } catch (error) {
+          alert("Erro ao salvar vídeo: " + error.message);
+        } finally {
+          btnStopRecording.innerHTML = '<i class="fas fa-stop"></i> Parar';
+          btnStopRecording.disabled = false;
+        }
+      }
+    };
+    
+    mediaRecorder.start();
+    addLog("📹 Iniciou gravação de vídeo...");
+    
+    btnStartRecording.innerHTML = '<i class="fas fa-microphone"></i> Gravando...';
+    btnStartRecording.disabled = true;
+    btnStopRecording.disabled = false;
+  } catch (err) {
+    alert("Não foi possível acessar câmera: " + err);
+    btnStartRecording.innerHTML = '<i class="fas fa-play"></i> Iniciar';
+    btnStartRecording.disabled = false;
+  }
+}
+
+function stopVideoRecording(){
+  if(mediaRecorder && mediaRecorder.state === 'recording'){
+    mediaRecorder.stop();
+    addLog("📹 Parou gravação de vídeo.");
+    btnStartRecording.innerHTML = '<i class="fas fa-play"></i> Iniciar';
+    btnStartRecording.disabled = false;
+  }
+}
+
+function closeVideoOverlay(){
+  videoOverlay.style.display = 'none';
+  if(localCameraStream){
+    localCameraStream.getTracks().forEach(t => t.stop());
+    localCameraStream = null;
+  }
+  videoPreview.srcObject = null;
+  
+  // Reset buttons
+  btnStartRecording.innerHTML = '<i class="fas fa-play"></i> Iniciar';
+  btnStartRecording.disabled = false;
+  btnStopRecording.innerHTML = '<i class="fas fa-stop"></i> Parar';
+  btnStopRecording.disabled = false;
+}
+
+/********** CHAT (PLAYER) **********/
+function sendChatAsPlayer(){
+  const txt = playerChatInput.value.trim();
+  if(!txt) return;
+  
+  playerChatInput.value = '';
+  db.ref(`games/${gameCode}/chat`).once('value', snap => {
+    let arr = snap.val() || [];
+    const name = localStorage.getItem("opoderdedo_playerName") || 'Jogador';
+    arr.push({from: name, text: txt, ts: Date.now()});
+    db.ref(`games/${gameCode}/chat`).set(arr)
+      .catch(error => alert("Erro ao enviar mensagem: " + error.message));
+  });
+}
+
+/********** LOG HELPER **********/
+function addLog(msg){
+  db.ref(`games/${gameCode}/logs`).once('value', snap => {
+    let arr = snap.val() || [];
+    arr.push(msg);
+    db.ref(`games/${gameCode}/logs`).set(arr);
+  });
+}
+
+/********** GERA CODE E BARALHO **********/
+function generateGameCode(){
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+function generateDeck(){
+  const suits = ["♥","♦","♣","♠"];
+  const ranks = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+  let deck = [];
+  
+  for(let s of suits){
+    for(let r of ranks){
+      deck.push({rank: r, suit: s});
+    }
+  }
+  
+  for(let i = 0; i < 3; i++){
+    deck.push({rank: 'Joker', suit: 'Coringa'});
+  }
+  
+  // shuffle
+  for(let i = deck.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  
+  return deck;
+}
+
+function renderCard(rank, suit){
+  if(rank === 'Joker'){
+    return `
+      <div class="card-front" style="background: linear-gradient(135deg, #ffd700 0%, #f9a825 100%);">
+        <div class="card-center-symbol" style="font-size: 1.8rem; color: var(--dark);">
+          <i class="fas fa-crown"></i><br>
+          <span style="font-size: 1rem;">CORINGA</span>
+        </div>
+      </div>
+    `;
+  }
+  
+  const isRed = (suit === '♥' || suit === '♦');
+  const suitSymbol = suit === '♥' ? '♥️' : 
+                    suit === '♦' ? '♦️' : 
+                    suit === '♣' ? '♣️' : 
+                    suit === '♠' ? '♠️' : '';
+                    
+  return `
+    <div class="card-front">
+      <div class="card-rank-suit ${isRed ? 'red' : 'black'}">
+        ${rank}${suitSymbol}
+      </div>
+      <div class="card-center-symbol ${isRed ? 'red' : 'black'}">
+        ${rank}<br>${suitSymbol}
+      </div>
+    </div>
+  `;
+}
+</script>
+</body>
+</html>
