@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <title>O Poder do Dedo - Revisado</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>O Poder do Dedo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
   <!-- Firebase (compat) -->
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
@@ -12,143 +12,629 @@
 
   <!-- QRCode lib -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
-    /* Layout básico, responsivo */
+    :root {
+      --primary: #3498db;
+      --primary-dark: #2980b9;
+      --success: #2ecc71;
+      --danger: #e74c3c;
+      --warning: #f39c12;
+      --info: #17a2b8;
+      --dark: #2c3e50;
+      --light: #f8f9fa;
+      --gray: #95a5a6;
+      --card-bg: #fff6e5;
+      --card-border: #f39c12;
+      --radius: 12px;
+      --shadow: 0 4px 12px rgba(0,0,0,0.08);
+      --transition: all 0.3s ease;
+    }
+
     * {
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
       box-sizing: border-box;
     }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #fafafa;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e0e5ec 100%);
       color: #333;
       min-height: 100vh;
+      padding: 15px;
       display: flex;
       flex-direction: column;
       align-items: center;
+      line-height: 1.6;
     }
+
     h1, h2, h3, h4 {
       text-align: center;
-      margin-bottom: 10px;
-      color: #444;
+      margin-bottom: 15px;
+      color: var(--dark);
+      font-weight: 600;
     }
+
+    h1 {
+      font-size: 2.2rem;
+      margin-top: 10px;
+      background: linear-gradient(to right, #3498db, #2ecc71);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    h2 {
+      font-size: 1.6rem;
+      margin-top: 5px;
+    }
+
+    h3 {
+      font-size: 1.3rem;
+    }
+
+    h4 {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-top: 15px;
+      margin-bottom: 8px;
+      border-left: 4px solid var(--primary);
+      padding-left: 10px;
+      text-align: left;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: var(--radius);
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    }
+
     button {
-      padding: 10px 16px;
+      padding: 12px 20px;
       border: none;
-      border-radius: 4px;
-      margin: 5px;
+      border-radius: var(--radius);
+      margin: 8px 5px;
       cursor: pointer;
       font-size: 1rem;
-      transition: background 0.2s;
+      font-weight: 500;
+      font-family: 'Poppins', sans-serif;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
     button:hover {
       opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
+
     button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
     }
-    .btn-dark { background: #555; color: #fff; }
-    .btn-primary { background: #007BFF; color: #fff; }
-    .btn-success { background: #28a745; color: #fff; }
-    .btn-danger { background: #dc3545; color: #fff; }
-    .btn-warning { background: #ffc107; color: #212529; }
-    .btn-info { background: #17a2b8; color: #fff; }
+
+    .btn-dark { background: var(--dark); color: var(--light); }
+    .btn-primary { background: var(--primary); color: var(--light); }
+    .btn-success { background: var(--success); color: var(--light); }
+    .btn-danger { background: var(--danger); color: var(--light); }
+    .btn-warning { background: var(--warning); color: var(--dark); }
+    .btn-info { background: var(--info); color: var(--light); }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+    }
+    .btn-outline:hover {
+      background: var(--primary);
+      color: var(--light);
+    }
 
     .container {
       width: 95%;
-      max-width: 1200px;
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 15px;
-      margin-top: 20px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      max-width: 1000px;
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      margin: 15px auto;
+      box-shadow: var(--shadow);
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 15px;
+      position: relative;
+      overflow: hidden;
     }
+
+    .container::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(to right, var(--primary), var(--success));
+    }
+
     .hidden { display: none !important; }
-    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .col {
+      flex: 1;
+      min-width: 250px;
+    }
 
     .status-panel {
-      background: #e7f3ff;
-      border: 1px solid #bee0ff;
-      padding: 10px;
-      border-radius: 5px;
-      margin-bottom: 10px;
+      background: linear-gradient(to right, #e0f7fa, #bbdefb);
+      border-left: 4px solid var(--primary);
+      padding: 15px;
+      border-radius: var(--radius);
+      margin-bottom: 15px;
       text-align: center;
-      font-weight: bold;
-      color: #007BFF;
+      font-weight: 600;
+      color: var(--dark);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
+
     .painel, .chat-box {
-      background: #f9f9f9;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      background: #f8f9fa;
+      border: 1px solid #eee;
+      border-radius: var(--radius);
       max-height: 200px;
       overflow-y: auto;
-      padding: 8px;
+      padding: 12px;
       margin-top: 10px;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       color: #333;
+      scrollbar-width: thin;
     }
+
+    .painel::-webkit-scrollbar, .chat-box::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .painel::-webkit-scrollbar-thumb, .chat-box::-webkit-scrollbar-thumb {
+      background-color: #ddd;
+      border-radius: 6px;
+    }
+
     .rules-list {
-      background: #f9f9f9; border: 1px solid #ccc; border-radius: 4px;
-      padding: 8px; min-height: 40px;
+      background: #f8f9fa;
+      border: 1px solid #eee;
+      border-radius: var(--radius);
+      padding: 12px;
+      min-height: 60px;
+      margin-bottom: 5px;
     }
+
     .rule-item {
       background: #eee;
-      margin: 4px 0;
-      padding: 4px;
-      border-radius: 3px;
+      margin: 6px 0;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border-left: 3px solid var(--primary);
+      font-weight: 500;
     }
+
     .finger-box {
-      background: #ffebb7;
-      border: 1px solid #ffcf52;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 5px;
+      background: linear-gradient(to right, #fff3e0, #ffe0b2);
+      border: 1px solid var(--card-border);
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: var(--radius);
+      text-align: center;
+      box-shadow: 0 3px 10px rgba(243, 156, 18, 0.2);
+      animation: pulse 1.5s infinite;
     }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(243, 156, 18, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0); }
+    }
+
     .player-photo {
-      width: 40px; height: 40px;
-      object-fit: cover; border-radius: 50%;
-      vertical-align: middle; margin-right:5px;
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 50%;
+      vertical-align: middle;
+      margin-right: 5px;
+      border: 2px solid white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
+
+    .player-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 10px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .player-item.current {
+      background: #e0f7fa;
+      border-left: 4px solid var(--success);
+    }
+
+    .player-name {
+      font-weight: 600;
+      margin-right: 8px;
+    }
+
+    .player-badge {
+      background: var(--primary);
+      color: white;
+      font-size: 0.8rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      margin-left: 5px;
+    }
+
+    .card-container {
+      display: flex;
+      justify-content: center;
+      margin: 15px 0;
+    }
+
     .card-front {
-      width: 100px; height: 150px;
-      background: #fff;
+      width: 120px;
+      height: 180px;
+      background: white;
       position: relative;
       color: #000;
       border: 2px solid #000;
-      border-radius: 6px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       margin: 5px auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
     }
+
+    .card-front:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+    }
+
     .card-rank-suit {
-      position: absolute; top:8px; left:8px;
-      font-size:1.4rem; font-weight:bold;
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 1.6rem;
+      font-weight: bold;
     }
-    .red { color: red; }
+
+    .card-rank-suit-bottom {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      font-size: 1.6rem;
+      font-weight: bold;
+      transform: rotate(180deg);
+    }
+
+    .card-center {
+      font-size: 3rem;
+      font-weight: bold;
+    }
+
+    .red { color: #e74c3c; }
     .black { color: #000; }
+
     .card-back {
-      width: 15px; height: 25px;
-      background: #bbb; border-radius:3px;
-      display: inline-block; margin:2px;
+      width: 20px;
+      height: 30px;
+      background: #ddd;
+      border-radius: 4px;
+      display: inline-block;
+      margin: 2px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
+
     #deckView, #deckViewPlayer {
-      display: flex; flex-wrap: wrap;
-      max-width:80px; margin-top:5px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 200px;
+      margin: 10px auto;
     }
+
     #videoOverlay {
-      position: fixed; top:0; left:0;
-      width:100%; height:100%;
-      background: rgba(0,0,0,0.8);
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
       color: #fff;
       display: none;
-      flex-direction: column; align-items:center; justify-content:center;
-      z-index:9999; padding:10px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
     }
-    video { background:#000; max-width:90vw; max-height:60vh; }
+
+    video {
+      background: #000;
+      max-width: 90vw;
+      max-height: 60vh;
+      border-radius: 8px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+
+    .video-controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .game-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .game-code {
+      background: var(--primary);
+      color: white;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-weight: 500;
+      display: inline-block;
+    }
+
+    .chat-message {
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .chat-name {
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .qr-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 15px 0;
+    }
+
+    .join-link {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: var(--primary);
+      word-break: break-all;
+      text-align: center;
+    }
+
+    .card-effect {
+      font-size: 0.9rem;
+      text-align: center;
+      margin-top: 5px;
+      color: #666;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-left: 5px;
+    }
+
+    .badge-primary { background: var(--primary); color: white; }
+    .badge-success { background: var(--success); color: white; }
+    .badge-warning { background: var(--warning); color: #333; }
+
+    .centered {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .mode-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 25px 20px;
+      text-align: center;
+      flex: 1;
+      min-width: 200px;
+      max-width: 300px;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+    }
+
+    .mode-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .mode-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+    }
+
+    .mode-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .mode-desc {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+      h1 { font-size: 1.8rem; }
+      h2 { font-size: 1.4rem; }
+      h3 { font-size: 1.2rem; }
+      h4 { font-size: 1rem; }
+      
+      .container {
+        padding: 15px;
+      }
+      
+      button {
+        padding: 10px 16px;
+        font-size: 0.95rem;
+        width: 100%;
+        margin: 5px 0;
+      }
+      
+      .row .btn-primary,
+      .row .btn-success,
+      .row .btn-info,
+      .row .btn-dark {
+        flex: 1;
+        min-width: unset;
+      }
+      
+      input, select, textarea {
+        padding: 10px 12px;
+      }
+      
+      .card-front {
+        width: 100px;
+        height: 150px;
+      }
+      
+      .card-rank-suit, .card-rank-suit-bottom {
+        font-size: 1.4rem;
+      }
+      
+      .card-center {
+        font-size: 2.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      
+      .container {
+        padding: 12px;
+        width: 100%;
+      }
+      
+      h1 { font-size: 1.6rem; }
+      
+      .card-front {
+        width: 90px;
+        height: 135px;
+      }
+      
+      .card-rank-suit, .card-rank-suit-bottom {
+        font-size: 1.2rem;
+      }
+      
+      .card-center {
+        font-size: 2.2rem;
+      }
+      
+      .mode-card {
+        min-width: 150px;
+        height: 180px;
+        padding: 15px;
+      }
+    }
+
+    /* Para televisões e telas maiores */
+    @media (min-width: 1200px) {
+      .container {
+        max-width: 1200px;
+      }
+      
+      h1 { font-size: 2.5rem; }
+      
+      .card-front {
+        width: 140px;
+        height: 210px;
+      }
+      
+      .card-rank-suit, .card-rank-suit-bottom {
+        font-size: 1.8rem;
+      }
+      
+      .card-center {
+        font-size: 3.5rem;
+      }
+    }
+
+    /* Para orientação paisagem em celulares */
+    @media (max-height: 500px) and (orientation: landscape) {
+      .container {
+        padding: 10px;
+      }
+      
+      h1 { font-size: 1.5rem; margin: 5px 0; }
+      h2 { font-size: 1.3rem; margin: 5px 0; }
+      h3, h4 { font-size: 1rem; margin: 5px 0; }
+      
+      .card-front {
+        width: 80px;
+        height: 120px;
+      }
+      
+      button {
+        padding: 8px 12px;
+      }
+      
+      .painel, .chat-box {
+        max-height: 120px;
+      }
+    }
   </style>
 </head>
 
@@ -157,149 +643,210 @@
 
 <!-- SELETOR DE MODO -->
 <div id="modeSelect" class="container">
-  <h2>Você é o Organizador ou Jogador?</h2>
-  <button id="btnHost" class="btn-dark">Organizador</button>
-  <button id="btnPlayer" class="btn-primary">Jogador</button>
+  <h2>Como você quer participar?</h2>
+  <div class="centered">
+    <div id="btnHost" class="mode-card">
+      <div class="mode-icon">🎲</div>
+      <div class="mode-title">Organizador</div>
+      <div class="mode-desc">Criar e gerenciar uma nova partida</div>
+    </div>
+    <div id="btnPlayer" class="mode-card">
+      <div class="mode-icon">🎮</div>
+      <div class="mode-title">Jogador</div>
+      <div class="mode-desc">Participar de uma partida existente</div>
+    </div>
+  </div>
 </div>
 
 <!-- HOST AREA -->
 <div id="hostArea" class="container hidden">
-  <h2>Organizador</h2>
+  <h2>Área do Organizador</h2>
 
   <div id="hostStep1">
     <button id="btnCreateGame" class="btn-success">Criar Nova Partida</button>
-    <p style="margin:10px 0; text-align:center;">Ou entre numa partida existente:</p>
+    <p style="margin:15px 0; text-align:center; color:#666;">Ou entre numa partida existente:</p>
     <div class="row" style="justify-content:center;">
-      <input type="text" id="inputGameCodeHost" placeholder="Código da Partida" style="flex:1;"/>
+      <input type="text" id="inputGameCodeHost" placeholder="Digite o código da partida" style="flex:1;"/>
       <button id="btnJoinGameHost" class="btn-info">Entrar</button>
     </div>
   </div>
 
   <div id="hostLobby" class="hidden">
-    <h3>Código da Partida: <span id="hostGameCode"></span></h3>
-    <div class="row" style="justify-content:center;margin:10px 0;">
-      <div id="qrCodeLobby"></div>
+    <div class="game-info">
+      <h3>Sala de Espera</h3>
+      <div class="game-code">Código: <span id="hostGameCode"></span></div>
     </div>
-    <p id="hostLinkInfo" style="text-align:center;"></p>
+
+    <div class="qr-container">
+      <div id="qrCodeLobby"></div>
+      <div id="hostLinkInfo" class="join-link"></div>
+    </div>
 
     <h4>Jogadores Conectados</h4>
-    <div id="hostPlayersList"></div>
+    <div id="hostPlayersList" class="players-list">
+      <div class="player-item">Aguardando jogadores...</div>
+    </div>
 
-    <button id="btnStartGame" class="btn-primary">Iniciar Partida</button>
+    <div class="centered" style="margin-top:20px;">
+      <button id="btnStartGame" class="btn-primary" disabled>Iniciar Partida</button>
+    </div>
   </div>
 
   <div id="hostGame" class="hidden">
     <div id="hostStatusPanel" class="status-panel"></div>
 
-    <div style="text-align:center; margin-bottom:10px;">
-      <div id="qrCodeGame"></div>
+    <div class="row">
+      <div class="col">
+        <h4>Carta Atual</h4>
+        <div class="card-container">
+          <div id="currentCardHost">Nenhuma carta puxada</div>
+        </div>
+        <div class="centered">
+          <button id="btnDrawCard" class="btn-warning">🃏 Puxar Carta</button>
+        </div>
+      </div>
+      
+      <div class="col">
+        <h4>Código da Partida</h4>
+        <div class="qr-container">
+          <div id="qrCodeGame"></div>
+          <div class="game-code" style="margin-top:10px;">Código: <span id="hostGameCodeInGame"></span></div>
+        </div>
+      </div>
     </div>
 
-    <h4>Carta Atual</h4>
-    <div id="currentCardHost">Nenhuma</div>
-    <button id="btnDrawCard" class="btn-warning">&#x1F0CF; Puxar Carta</button>
-
-    <h4>Baralho</h4>
-    <div id="deckCount"></div>
-    <div id="deckView"></div>
-
-    <h4>Regras Ativas</h4>
-    <div id="hostRules" class="rules-list"></div>
+    <div class="row">
+      <div class="col">
+        <h4>Baralho</h4>
+        <div id="deckCount" style="text-align:center; font-weight:500; color:#666;"></div>
+        <div id="deckView"></div>
+      </div>
+      
+      <div class="col">
+        <h4>Regras Ativas</h4>
+        <div id="hostRules" class="rules-list"></div>
+      </div>
+    </div>
 
     <h4>Jogadores</h4>
     <div id="hostPlayersStatus"></div>
 
-    <h4>Painel (Eventos)</h4>
-    <div id="hostPainel" class="painel"></div>
-
-    <h4>Chat</h4>
-    <div class="chat-box" id="hostChat"></div>
-    <div class="row" style="justify-content:center;">
-      <input type="text" id="hostChatInput" placeholder="Digite uma mensagem" style="flex:1;"/>
-      <button id="btnHostSendChat" class="btn-info">Enviar</button>
+    <div class="row">
+      <div class="col">
+        <h4>Painel de Eventos</h4>
+        <div id="hostPainel" class="painel"></div>
+      </div>
+      
+      <div class="col">
+        <h4>Chat</h4>
+        <div class="chat-box" id="hostChat"></div>
+        <div class="row" style="justify-content:center;">
+          <input type="text" id="hostChatInput" placeholder="Digite uma mensagem..." style="flex:1;"/>
+          <button id="btnHostSendChat" class="btn-info">Enviar</button>
+        </div>
+      </div>
     </div>
 
-    <button id="btnEndGame" class="btn-danger" style="margin-top:10px;">Encerrar Partida</button>
+    <div class="centered" style="margin-top:20px;">
+      <button id="btnEndGame" class="btn-danger">Encerrar Partida</button>
+    </div>
   </div>
 </div>
 
 <!-- PLAYER AREA -->
 <div id="playerArea" class="container hidden">
-  <h2>Jogador</h2>
+  <h2>Área do Jogador</h2>
 
   <div id="playerStep1">
     <div class="row" style="justify-content:center;">
-      <input type="text" id="inputGameCodePlayer" placeholder="Código da Partida" style="flex:1;"/>
+      <input type="text" id="inputGameCodePlayer" placeholder="Digite o código da partida" style="flex:1;"/>
       <button id="btnEnterCodePlayer" class="btn-info">Entrar</button>
     </div>
-    <p style="margin:10px 0; text-align:center;">ou use o link/QR code</p>
+    <p style="margin:15px 0; text-align:center; color:#666;">ou use o link/QR code compartilhado pelo organizador</p>
   </div>
 
   <div id="playerRegister" class="hidden">
-    <h3>Digite Seu Nome</h3>
-    <input type="text" id="inputPlayerName" placeholder="Seu nome" style="width:100%;"/>
-    <!-- Removido qualquer foto, agora só nome -->
-    <button id="btnJoinPlayerGame" class="btn-success" style="margin-top:10px;">Entrar na Partida</button>
+    <h3>Registre-se na Partida</h3>
+    <input type="text" id="inputPlayerName" placeholder="Digite seu nome" style="width:100%;"/>
+    <div class="centered" style="margin-top:15px;">
+      <button id="btnJoinPlayerGame" class="btn-success">Entrar na Partida</button>
+    </div>
   </div>
 
   <div id="playerLobby" class="hidden">
-    <h3>Aguardando Organizador iniciar...</h3>
-    <div id="playerLobbyList"></div>
+    <h3>Aguardando o Início da Partida...</h3>
+    <div class="status-panel">O organizador iniciará a partida em breve</div>
+    <h4>Jogadores Conectados</h4>
+    <div id="playerLobbyList" class="players-list"></div>
   </div>
 
   <div id="playerGame" class="hidden">
     <div id="playerStatusPanel" class="status-panel hidden"></div>
 
-    <div id="playerInfo" style="text-align:center; margin-bottom:10px;"></div>
+    <div id="playerInfo" class="game-info"></div>
 
-    <h4>Carta Atual</h4>
-    <div id="currentCardPlayer">Nenhuma</div>
-    <button id="btnDrawCardPlayer" class="btn-warning" style="display:none;">
-      &#x1F0CF; Puxar Carta
-    </button>
-
-    <h4>Baralho</h4>
-    <div id="deckCountPlayer"></div>
-    <div id="deckViewPlayer"></div>
+    <div class="row">
+      <div class="col">
+        <h4>Carta Atual</h4>
+        <div class="card-container">
+          <div id="currentCardPlayer">Nenhuma carta puxada</div>
+        </div>
+        <div class="centered">
+          <button id="btnDrawCardPlayer" class="btn-warning" style="display:none;">🃏 Puxar Carta</button>
+        </div>
+      </div>
+      
+      <div class="col">
+        <h4>Baralho</h4>
+        <div id="deckCountPlayer" style="text-align:center; font-weight:500; color:#666;"></div>
+        <div id="deckViewPlayer"></div>
+      </div>
+    </div>
 
     <h4>Regras Ativas</h4>
     <div id="playerRules" class="rules-list"></div>
 
     <h4>Jogadores</h4>
-    <div id="playerListStatus"></div>
+    <div id="playerListStatus" class="players-list"></div>
 
     <div class="finger-box hidden" id="fingerBox">
-      <h4>Poder do Dedo Ativo!</h4>
-      <p>Clique <strong>AGORA</strong> para não ser o último!</p>
-      <button id="btnFingerClick" class="btn-danger">Clique Rápido!</button>
-      <div id="fingerQueue" style="margin-top:5px;"></div>
+      <h4>Poder do Dedo Ativado!</h4>
+      <p>Clique <strong>RÁPIDO</strong> para não ser o último!</p>
+      <button id="btnFingerClick" class="btn-danger">CLIQUE AGORA! 👇</button>
+      <div id="fingerQueue" style="margin-top:10px; font-weight:500;"></div>
     </div>
 
-    <div style="text-align:center;">
-      <button id="btnUseJoker" class="btn-info" style="display:none;">Usar Coringa</button>
-      <button id="btnActivateFinger" class="btn-warning" style="display:none;">Poder do Dedo (8)</button>
-      <button id="btnRecordVideo" class="btn-dark">Gravar Vídeo</button>
+    <div class="centered" style="margin:15px 0;">
+      <button id="btnUseJoker" class="btn-info" style="display:none;">Usar Coringa 🃏</button>
+      <button id="btnActivateFinger" class="btn-warning" style="display:none;">Ativar Poder do Dedo 👇</button>
+      <button id="btnRecordVideo" class="btn-dark">📹 Gravar Vídeo</button>
     </div>
 
-    <!-- Overlay de Vídeo -->
-    <div id="videoOverlay">
-      <video id="videoPreview" autoplay muted playsinline></video>
-      <div style="margin-top:10px;">
-        <button id="btnStartRecording" class="btn-success">Iniciar</button>
-        <button id="btnStopRecording" class="btn-danger">Parar</button>
-        <button id="btnCloseVideoOverlay" class="btn-dark">Fechar</button>
+    <div class="row">
+      <div class="col">
+        <h4>Painel de Eventos</h4>
+        <div id="playerPainel" class="painel"></div>
+      </div>
+      
+      <div class="col">
+        <h4>Chat</h4>
+        <div class="chat-box" id="playerChat"></div>
+        <div class="row" style="justify-content:center;">
+          <input type="text" id="playerChatInput" placeholder="Digite uma mensagem..." style="flex:1;"/>
+          <button id="btnPlayerSendChat" class="btn-info">Enviar</button>
+        </div>
       </div>
     </div>
+  </div>
+</div>
 
-    <h4>Painel (Eventos)</h4>
-    <div id="playerPainel" class="painel"></div>
-
-    <h4>Chat</h4>
-    <div class="chat-box" id="playerChat"></div>
-    <div class="row" style="justify-content:center;">
-      <input type="text" id="playerChatInput" placeholder="Digite uma mensagem" style="flex:1;"/>
-      <button id="btnPlayerSendChat" class="btn-info">Enviar</button>
-    </div>
+<!-- Overlay de Vídeo -->
+<div id="videoOverlay">
+  <video id="videoPreview" autoplay muted playsinline></video>
+  <div class="video-controls">
+    <button id="btnStartRecording" class="btn-success">Iniciar Gravação</button>
+    <button id="btnStopRecording" class="btn-danger" style="display:none;">Parar</button>
+    <button id="btnCloseVideoOverlay" class="btn-dark">Fechar</button>
   </div>
 </div>
 
@@ -312,417 +859,10 @@ const firebaseConfig = {
   authDomain: "opoderdodedo.firebaseapp.com",
   databaseURL: "https://opoderdodedo-default-rtdb.firebaseio.com",
   projectId: "opoderdodedo",
-  storageBucket: "opoderdodedo.appspot.com", // Correção: storageBucket estava incorreto
+  storageBucket: "opoderdodedo.appspot.com",
   messagingSenderId: "931089125837",
   appId: "1:931089125837:web:fa22ae36bd206f28cf7484",
   measurementId: "G-6YE1KQ0VQC"
 };
 firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-/* =========================================
-   2) ELEMENTOS E VARS
-   ========================================= */
-const modeSelect = document.getElementById('modeSelect');
-const btnHost = document.getElementById('btnHost');
-const btnPlayer = document.getElementById('btnPlayer');
-
-// Host
-const hostArea = document.getElementById('hostArea');
-const hostStep1 = document.getElementById('hostStep1');
-const btnCreateGame = document.getElementById('btnCreateGame');
-const inputGameCodeHost = document.getElementById('inputGameCodeHost');
-const btnJoinGameHost = document.getElementById('btnJoinGameHost');
-const hostLobby = document.getElementById('hostLobby');
-const hostGame = document.getElementById('hostGame');
-const hostGameCode = document.getElementById('hostGameCode');
-const qrCodeLobby = document.getElementById('qrCodeLobby');
-const qrCodeGame = document.getElementById('qrCodeGame');
-const hostLinkInfo = document.getElementById('hostLinkInfo');
-const hostPlayersList = document.getElementById('hostPlayersList');
-const btnStartGame = document.getElementById('btnStartGame');
-const deckCount = document.getElementById('deckCount');
-const deckView = document.getElementById('deckView');
-const currentCardHost = document.getElementById('currentCardHost');
-const btnDrawCard = document.getElementById('btnDrawCard');
-const hostRules = document.getElementById('hostRules');
-const hostPlayersStatus = document.getElementById('hostPlayersStatus');
-const btnEndGame = document.getElementById('btnEndGame');
-const hostChat = document.getElementById('hostChat');
-const hostChatInput = document.getElementById('hostChatInput');
-const btnHostSendChat = document.getElementById('btnHostSendChat');
-const hostStatusPanel = document.getElementById('hostStatusPanel');
-const hostPainel = document.getElementById('hostPainel');
-
-// Player
-const playerArea = document.getElementById('playerArea');
-const playerStep1 = document.getElementById('playerStep1');
-const inputGameCodePlayer = document.getElementById('inputGameCodePlayer');
-const btnEnterCodePlayer = document.getElementById('btnEnterCodePlayer');
-
-const playerRegister = document.getElementById('playerRegister');
-const inputPlayerName = document.getElementById('inputPlayerName');
-const btnJoinPlayerGame = document.getElementById('btnJoinPlayerGame');
-
-const playerLobby = document.getElementById('playerLobby');
-const playerLobbyList = document.getElementById('playerLobbyList');
-const playerGame = document.getElementById('playerGame');
-const playerInfo = document.getElementById('playerInfo');
-const currentCardPlayer = document.getElementById('currentCardPlayer');
-const btnDrawCardPlayer = document.getElementById('btnDrawCardPlayer');
-const playerRules = document.getElementById('playerRules');
-const fingerBox = document.getElementById('fingerBox');
-const btnFingerClick = document.getElementById('btnFingerClick');
-const fingerQueue = document.getElementById('fingerQueue');
-const btnUseJoker = document.getElementById('btnUseJoker');
-const btnActivateFinger = document.getElementById('btnActivateFinger');
-const btnRecordVideo = document.getElementById('btnRecordVideo');
-const videoOverlay = document.getElementById('videoOverlay');
-const playerPainel = document.getElementById('playerPainel');
-const playerChat = document.getElementById('playerChat');
-const playerChatInput = document.getElementById('playerChatInput');
-const btnPlayerSendChat = document.getElementById('btnPlayerSendChat');
-const playerStatusPanel = document.getElementById('playerStatusPanel');
-
-const deckCountPlayer = document.getElementById('deckCountPlayer');
-const deckViewPlayer = document.getElementById('deckViewPlayer');
-const playerListStatus = document.getElementById('playerListStatus');
-
-// Elementos para o vídeo
-const videoPreview = document.getElementById('videoPreview');
-const btnStartRecording = document.getElementById('btnStartRecording');
-const btnStopRecording = document.getElementById('btnStopRecording');
-const btnCloseVideoOverlay = document.getElementById('btnCloseVideoOverlay');
-
-// Vars
-let gameCode = null;
-let myPlayerKey = null;
-let localCameraStream = null;
-let mediaRecorder = null;
-let recordedChunks = [];
-
-/* =========================================
-   3) EVENTOS
-   ========================================= */
-btnHost.onclick = () => {
-  modeSelect.classList.add('hidden');
-  hostArea.classList.remove('hidden');
-};
-btnPlayer.onclick = () => {
-  modeSelect.classList.add('hidden');
-  playerArea.classList.remove('hidden');
-};
-
-// Host
-btnCreateGame.onclick = createGameAsHost;
-btnJoinGameHost.onclick = joinGameAsHost;
-btnStartGame.onclick = startGameHost;
-btnDrawCard.onclick = drawCardHost;
-btnEndGame.onclick = endGameHost;
-btnHostSendChat.onclick = sendChatAsHost;
-
-// Eventos de pressionar Enter nos inputs
-hostChatInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') sendChatAsHost();
-});
-
-// Player
-btnEnterCodePlayer.onclick = enterCodePlayer;
-btnJoinPlayerGame.onclick = registerPlayerInGame;
-btnDrawCardPlayer.onclick = drawCardPlayer;
-btnUseJoker.onclick = useJokerPlayer;
-btnActivateFinger.onclick = activateFingerPower;
-btnFingerClick.onclick = fingerClick;
-btnRecordVideo.onclick = () => videoOverlay.style.display='flex';
-btnCloseVideoOverlay.onclick = closeVideoOverlay;
-btnPlayerSendChat.onclick = sendChatAsPlayer;
-btnStartRecording.onclick = startVideoRecording;
-btnStopRecording.onclick = stopVideoRecording;
-
-// Eventos de pressionar Enter nos inputs
-playerChatInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') sendChatAsPlayer();
-});
-inputGameCodePlayer.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') enterCodePlayer();
-});
-inputPlayerName.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') registerPlayerInGame();
-});
-
-/* =========================================
-   4) CHECK LOCAL STORAGE DO PLAYER
-   ========================================= */
-(async function checkLocalStoragePlayer() {
-  const savedGameId = localStorage.getItem("opoderdedo_gameId");
-  const savedPlayerKey = localStorage.getItem("opoderdedo_playerKey");
-  if (savedGameId && savedPlayerKey) {
-    try {
-      // Verifica no DB se existe
-      const snap = await db.ref(`games/${savedGameId}/players/${savedPlayerKey}`).once('value');
-      if (snap.exists()) {
-        // Reconecta
-        gameCode = savedGameId;
-        myPlayerKey = savedPlayerKey;
-        db.ref(`games/${gameCode}`).on('value', s => {
-          if (!s.exists()) return;
-          updatePlayerView(s.val());
-        });
-        modeSelect.classList.add('hidden');
-        playerArea.classList.remove('hidden');
-        playerStep1.classList.add('hidden');
-        playerRegister.classList.add('hidden');
-      } else {
-        // limpar
-        localStorage.removeItem("opoderdedo_gameId");
-        localStorage.removeItem("opoderdedo_playerKey");
-      }
-    } catch (error) {
-      console.error("Erro ao verificar sessão salva:", error);
-      localStorage.removeItem("opoderdedo_gameId");
-      localStorage.removeItem("opoderdedo_playerKey");
-    }
-  }
-})();
-
-/* =========================================
-   5) FUNÇÕES DO HOST
-   ========================================= */
-async function createGameAsHost() {
-  try {
-    gameCode = generateGameCode();
-    const deck = generateDeck();
-    const initialData = {
-      status: 'lobby',
-      players: {},
-      deck,
-      currentCard: null,
-      currentPlayerIndex: 0,
-      direction: 1,
-      rules: [],
-      logs: [],
-      fingerPower: { active:false, owner:null, queue:[] },
-      chat: []
-    };
-    await db.ref(`games/${gameCode}`).set(initialData);
-
-    showHostLobby(gameCode);
-    subscribeHost(gameCode);
-  } catch (error) {
-    alert("Erro ao criar partida: " + error.message);
-    console.error("Erro ao criar partida:", error);
-  }
-}
-
-async function joinGameAsHost() {
-  const code = inputGameCodeHost.value.trim();
-  if (!code) return alert("Digite um código!");
-  
-  try {
-    const snap = await db.ref(`games/${code}`).once('value');
-    if (!snap.exists()) {
-      alert("Partida não encontrada!");
-      return;
-    }
-    gameCode = code;
-    showHostLobby(code);
-    subscribeHost(code);
-  } catch (error) {
-    alert("Erro ao entrar na partida: " + error.message);
-    console.error("Erro ao entrar na partida:", error);
-  }
-}
-
-function showHostLobby(code) {
-  hostStep1.classList.add('hidden');
-  hostLobby.classList.remove('hidden');
-  hostGameCode.textContent = code;
-  qrCodeLobby.innerHTML = '';
-  
-  // Gera o QR code com URL completa
-  const gameUrl = `${window.location.origin}${window.location.pathname}?gameId=${code}`;
-  new QRCode(qrCodeLobby, {
-    text: gameUrl,
-    width: 160,
-    height: 160
-  });
-  hostLinkInfo.textContent = `Link: ${gameUrl}`;
-}
-
-function subscribeHost(code) {
-  db.ref(`games/${code}`).on('value', snap => {
-    if (!snap.exists()) return;
-    const data = snap.val();
-    if (data.status==='lobby') {
-      renderHostLobby(data);
-    } else if (data.status==='ongoing') {
-      hostLobby.classList.add('hidden');
-      hostGame.classList.remove('hidden');
-      renderHostGame(data);
-    } else if (data.status==='finished') {
-      alert("Partida Encerrada!");
-      // Limpar listeners após partida encerrada
-      db.ref(`games/${code}`).off();
-    }
-  });
-}
-
-function renderHostLobby(data) {
-  const arr = Object.values(data.players||{});
-  hostPlayersList.innerHTML = arr.length > 0 ? 
-    arr.map(p => `<div>${p.name}</div>`).join('') : 
-    "<div>Nenhum jogador conectado</div>";
-  
-  // Habilita o botão de iniciar apenas se tiver jogadores
-  btnStartGame.disabled = arr.length === 0;
-}
-
-function startGameHost() {
-  try {
-    db.ref(`games/${gameCode}`).update({ status:'ongoing' });
-  } catch (error) {
-    alert("Erro ao iniciar partida: " + error.message);
-  }
-}
-
-function renderHostGame(data) {
-  const arr = Object.values(data.players||{});
-  const currentName = arr[data.currentPlayerIndex]?.name || '???';
-  hostStatusPanel.textContent = `É a vez de: ${currentName}`;
-
-  qrCodeGame.innerHTML = '';
-  const gameUrl = `${window.location.origin}${window.location.pathname}?gameId=${gameCode}`;
-  new QRCode(qrCodeGame, {
-    text: gameUrl,
-    width: 120, height:120
-  });
-
-  deckCount.textContent = `Restantes: ${data.deck ? data.deck.length : 0}`;
-  deckView.innerHTML = (data.deck||[]).map(()=>`<div class="card-back"></div>`).join('');
-
-  if (data.currentCard) {
-    currentCardHost.innerHTML = renderCard(data.currentCard.rank, data.currentCard.suit);
-  } else {
-    currentCardHost.textContent="Nenhuma";
-  }
-
-  if (data.rules && data.rules.length>0) {
-    hostRules.innerHTML = data.rules.map(r=>`<div class="rule-item">${r}</div>`).join('');
-  } else {
-    hostRules.innerHTML="<div>Nenhuma regra ativa</div>";
-  }
-
-  hostPlayersStatus.innerHTML = arr.map((p,i) => {
-    const isCurrent = (i===data.currentPlayerIndex)?' <span style="color:#28a745">(Vez)</span>':'';
-    const coringa = p.jokers>0? ` [Coringas: ${p.jokers}]`: '';
-    return `<div><strong>${p.name}</strong>${isCurrent}${coringa}</div>`;
-  }).join('');
-
-  if (data.logs) {
-    hostPainel.innerHTML = data.logs.map(l=>`<div>${l}</div>`).join('');
-    hostPainel.scrollTop = hostPainel.scrollHeight;
-  }
-  if (data.chat) {
-    hostChat.innerHTML = data.chat.map(c=>`<div><strong>${c.from}:</strong> ${c.text}</div>`).join('');
-    hostChat.scrollTop = hostChat.scrollHeight;
-  }
-  
-  // Desabilita o botão de puxar carta se o baralho estiver vazio
-  btnDrawCard.disabled = !data.deck || data.deck.length === 0;
-}
-
-async function drawCardHost() {
-  try {
-    const snap = await db.ref(`games/${gameCode}`).once('value');
-    const gameData = snap.val();
-    if (!gameData.deck || gameData.deck.length===0) {
-      addLog("Baralho acabou!");
-      return;
-    }
-    const card = gameData.deck[0];
-    const newDeck = gameData.deck.slice(1);
-    handleCardEffect(card, gameData);
-    await db.ref(`games/${gameCode}`).update({
-      deck:newDeck, currentCard:card
-    });
-  } catch (error) {
-    console.error("Erro ao puxar carta:", error);
-    alert("Erro ao puxar carta: " + error.message);
-  }
-}
-
-function endGameHost() {
-  if (confirm("Tem certeza que deseja encerrar a partida?")) {
-    try {
-      db.ref(`games/${gameCode}`).update({ status:'finished' });
-      
-      // Limpar os listeners após encerrar
-      db.ref(`games/${gameCode}`).off();
-      
-      // Voltar para a tela inicial
-      hostGame.classList.add('hidden');
-      hostStep1.classList.remove('hidden');
-      
-      // Limpar variáveis
-      gameCode = null;
-    } catch (error) {
-      console.error("Erro ao encerrar partida:", error);
-      alert("Erro ao encerrar partida: " + error.message);
-    }
-  }
-}
-
-function sendChatAsHost() {
-  const txt = hostChatInput.value.trim();
-  if(!txt)return;
-  hostChatInput.value='';
-  try {
-    db.ref(`games/${gameCode}/chat`).once('value', snap=>{
-      let arr = snap.val()||[];
-      arr.push({from:'HOST', text:txt, ts:Date.now()});
-      // Limitar o tamanho do chat para evitar exceder limites do Firebase
-      if (arr.length > 100) arr = arr.slice(-100);
-      db.ref(`games/${gameCode}/chat`).set(arr);
-    });
-  } catch (error) {
-    console.error("Erro ao enviar mensagem:", error);
-  }
-}
-
-/* =========================================
-   6) EFEITO DE CARTA
-   ========================================= */
-function handleCardEffect(card, gameData) {
-  try {
-    let logs = gameData.logs||[];
-    // Limitar tamanho dos logs para evitar exceder limites do Firebase
-    if (logs.length > 100) logs = logs.slice(-100);
-    
-    const arr = Object.values(gameData.players||{});
-    let idx = gameData.currentPlayerIndex;
-    let direction = gameData.direction;
-    let rules = gameData.rules||[];
-    const cName = arr[idx]?.name||'???';
-    logs.push(`${cName} puxou [${card.rank}${card.suit!=='Coringa'?card.suit:''}]`);
-
-    let passTurn = true;
-
-    switch(card.rank) {
-      case '4':
-        const newRule = prompt("Nova regra?");
-        if(newRule && newRule.trim() !== ""){
-          rules.push(newRule);
-          logs.push(`Regra adicionada: "${newRule}"`);
-        }
-        break;
-      case '6':
-        rules=[];
-        logs.push("Todas as regras foram quebradas!");
-        break;
-      case '8':
-        const pKey = Object.keys(gameData.players||{})[idx];
-        if(pKey){
-          db.ref(`games/${gameCode}/players/${pKey}/hasFingerPower`).set(true);
-          logs.push(`${cName} obteve o Poder do Dedo!`);
-        }
-        break;
+const db = firebase
