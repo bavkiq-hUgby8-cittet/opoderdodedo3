@@ -76,28 +76,22 @@
       flex-direction: column;
       align-items: center;
       color: var(--dark);
+      overflow: hidden; /* Previne scroll global */
     }
 
-    /* CONTAINER PRINCIPAL COM PROPORÇÃO FIXA */
+    /* CONTAINER PRINCIPAL COM LAYOUT FIXO */
     #mainContainer {
       width: 100%;
-      max-width: 1200px;
+      height: 100vh; /* Altura total da viewport */
+      max-width: 1920px;
       margin: 0 auto;
-      aspect-ratio: 16/9;
       background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-      border-radius: var(--border-radius-lg);
+      border-radius: 0; /* Remove bordas arredondadas para usar tela completa */
       box-shadow: var(--shadow-lg);
       display: flex;
       flex-direction: column;
       overflow: hidden;
       position: relative;
-    }
-    
-    /* Se for portrait (vertical) */
-    @media (orientation: portrait) {
-      #mainContainer {
-        aspect-ratio: 9/16;
-      }
     }
 
     /* Barra de navegação */
@@ -128,26 +122,64 @@
     /* Conteúdo principal com scroll */
     #contentScroll {
       flex: 1;
+      padding: 10px;
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: 1fr;
+      gap: 10px;
+      overflow: hidden;
+    }
+    
+    /* Grid layout para jogo em andamento */
+    .game-grid {
+      display: grid;
+      width: 100%;
+      height: 100%;
+      grid-template-columns: 1fr 2fr 1fr;
+      grid-template-rows: auto 1fr auto;
+      grid-template-areas: 
+        "header header header"
+        "left-panel center-panel right-panel"
+        "footer footer footer";
+      gap: 10px;
+    }
+    
+    .header-area {
+      grid-area: header;
+    }
+    
+    .left-panel {
+      grid-area: left-panel;
       overflow-y: auto;
-      padding: 20px;
-      display: flex; 
+    }
+    
+    .center-panel {
+      grid-area: center-panel;
+      display: flex;
       flex-direction: column;
-      gap: 20px;
-      scrollbar-width: thin;
-      scrollbar-color: var(--primary-light) var(--light);
     }
     
-    #contentScroll::-webkit-scrollbar {
-      width: 8px;
+    .right-panel {
+      grid-area: right-panel;
+      overflow-y: auto;
     }
     
-    #contentScroll::-webkit-scrollbar-track {
-      background: var(--light);
+    .footer-area {
+      grid-area: footer;
     }
     
-    #contentScroll::-webkit-scrollbar-thumb {
-      background-color: var(--primary-light);
-      border-radius: 20px;
+    /* Responsive grid para mobile */
+    @media (max-width: 768px) {
+      .game-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr auto auto;
+        grid-template-areas: 
+          "header"
+          "center-panel"
+          "left-panel"
+          "right-panel"
+          "footer";
+      }
     }
 
     .hidden { 
@@ -743,59 +775,95 @@
           </button>
         </div>
 
-        <div id="hostGame" class="hidden section">
-          <div id="hostStatusPanel" class="status-panel"></div>
-
-          <div class="qr-container" style="margin-bottom: 20px;">
-            <div id="qrCodeGame"></div>
-            <p style="margin-top: 10px; font-size: 0.8em; color: #666;">Escaneie para entrar na partida</p>
-          </div>
-
-          <div class="section" style="margin-bottom: 20px;">
-            <h4 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 10px;"><i class="fas fa-crown"></i> Carta Atual</h4>
-            <div id="currentCardHost" style="text-align: center;">Nenhuma</div>
-            <button id="btnDrawCard" class="btn-warning" style="margin-top: 15px; width: 100%;">
-              <i class="fas fa-hand-paper"></i> Puxar Carta
-            </button>
-          </div>
-
-          <div class="deck-container">
-            <h4 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 10px;"><i class="fas fa-layer-group"></i> Baralho</h4>
-            <div id="deckCount" style="margin-bottom: 5px; color: var(--primary-dark); font-weight: 500;"></div>
-            <div id="deckView"></div>
-          </div>
-
-          <div class="section" style="margin-bottom: 20px;">
-            <h4 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 10px;"><i class="fas fa-book"></i> Regras Ativas</h4>
-            <div id="hostRules" class="rules-box"></div>
-          </div>
-
-          <div class="section" style="margin-bottom: 20px;">
-            <h4 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 10px;"><i class="fas fa-users"></i> Jogadores</h4>
-            <div id="hostPlayersStatus" class="players-list"></div>
-          </div>
-
-          <div class="section" style="margin-bottom: 20px;">
-            <h4 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 10px;"><i class="fas fa-history"></i> Eventos do Jogo</h4>
-            <div id="hostPainel" class="panel-box"></div>
-          </div>
-
-          <div class="section">
-            <h4 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 10px;"><i class="fas fa-comments"></i> Chat</h4>
-            <div class="chat-container">
-              <div id="hostChat" class="chat-messages"></div>
-              <div class="chat-input-group">
-                <input type="text" id="hostChatInput" placeholder="Digite uma mensagem..." />
-                <button id="btnHostSendChat" class="btn-info">
-                  <i class="fas fa-paper-plane"></i> Enviar
+        <div id="hostGame" class="hidden">
+          <div class="game-grid">
+            <!-- Cabeçalho -->
+            <div class="header-area">
+              <div id="hostStatusPanel" class="status-panel"></div>
+            </div>
+            
+            <!-- Painel Esquerdo -->
+            <div class="left-panel">
+              <div class="section" style="height: 100%; display: flex; flex-direction: column;">
+                <h4 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 10px;">
+                  <i class="fas fa-gamepad"></i> Controles de Jogo
+                </h4>
+                
+                <!-- Carta Atual -->
+                <div style="text-align: center; margin-bottom: 15px;">
+                  <h5 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 10px;">
+                    <i class="fas fa-crown"></i> Carta Atual
+                  </h5>
+                  <div id="currentCardHost" style="text-align: center;">Nenhuma</div>
+                  <button id="btnDrawCard" class="btn-warning" style="margin-top: 15px; width: 100%;">
+                    <i class="fas fa-hand-paper"></i> Puxar Carta
+                  </button>
+                </div>
+                
+                <!-- Baralho -->
+                <div class="deck-container">
+                  <h5 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 10px;">
+                    <i class="fas fa-layer-group"></i> Baralho
+                  </h5>
+                  <div id="deckCount" style="margin-bottom: 5px; color: var(--primary-dark); font-weight: 500;"></div>
+                  <div id="deckView"></div>
+                </div>
+                
+                <!-- QR Code -->
+                <div style="margin-top: auto; padding-top: 15px;">
+                  <div id="qrCodeGame" style="margin: 0 auto; width: fit-content;"></div>
+                  <p style="margin-top: 5px; font-size: 0.8em; color: #666; text-align: center;">Escaneie para entrar</p>
+                </div>
+                
+                <button id="btnEndGame" class="btn-danger" style="margin-top: 10px;">
+                  <i class="fas fa-stop-circle"></i> Encerrar Partida
                 </button>
               </div>
             </div>
+            
+            <!-- Painel Central - Eventos do Jogo -->
+            <div class="center-panel">
+              <h4 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 10px; text-align: center;">
+                <i class="fas fa-history"></i> Eventos do Jogo
+              </h4>
+              <div class="main-panel-box">
+                <div id="hostPainel" class="event-log"></div>
+              </div>
+              
+              <!-- Regras Ativas -->
+              <div style="margin-top: 10px;">
+                <h4 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 10px;">
+                  <i class="fas fa-book"></i> Regras Ativas
+                </h4>
+                <div id="hostRules" class="rules-box" style="max-height: 100px; overflow-y: auto;"></div>
+              </div>
+            </div>
+            
+            <!-- Painel Direito -->
+            <div class="right-panel">
+              <div class="section" style="height: 100%; display: flex; flex-direction: column;">
+                <!-- Jogadores -->
+                <h4 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 10px;">
+                  <i class="fas fa-users"></i> Jogadores
+                </h4>
+                <div id="hostPlayersStatus" class="players-list" style="flex: 1; overflow-y: auto;"></div>
+                
+                <!-- Chat -->
+                <h4 style="font-family: var(--font-heading); color: var(--primary-dark); margin: 10px 0;">
+                  <i class="fas fa-comments"></i> Chat
+                </h4>
+                <div class="chat-container" style="flex: 1; display: flex; flex-direction: column; min-height: 200px;">
+                  <div id="hostChat" class="chat-messages" style="flex: 1; overflow-y: auto;"></div>
+                  <div class="chat-input-group">
+                    <input type="text" id="hostChatInput" placeholder="Digite uma mensagem..." />
+                    <button id="btnHostSendChat" class="btn-info">
+                      <i class="fas fa-paper-plane"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-
-          <button id="btnEndGame" class="btn-danger btn-lg" style="margin-top: 20px;">
-            <i class="fas fa-stop-circle"></i> Encerrar Partida
-          </button>
         </div>
       </div>
 
@@ -845,68 +913,105 @@
           </div>
         </div>
 
-        <div id="playerGame" class="hidden section">
-          <div id="playerStatusPanel" class="status-panel hidden"></div>
-
-          <div class="section" style="margin-bottom: 20px;">
-            <h4 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 10px; text-align: center;"><i class="fas fa-crown"></i> Carta Atual</h4>
-            <div id="currentCardPlayer" style="text-align: center;">Nenhuma</div>
-            <button id="btnDrawCardPlayer" class="btn-warning" style="display: none; margin-top: 15px; width: 100%;">
-              <i class="fas fa-hand-paper"></i> Puxar Carta
-            </button>
-          </div>
-
-          <div class="deck-container">
-            <h4 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 10px;"><i class="fas fa-layer-group"></i> Baralho</h4>
-            <div id="deckCountPlayer" style="margin-bottom: 5px; color: var(--primary-dark); font-weight: 500;"></div>
-            <div id="deckViewPlayer"></div>
-          </div>
-
-          <div class="section" style="margin-bottom: 20px;">
-            <h4 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 10px;"><i class="fas fa-book"></i> Regras Ativas</h4>
-            <div id="playerRules" class="rules-box"></div>
-          </div>
-
-          <div class="section" style="margin-bottom: 20px;">
-            <h4 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 10px;"><i class="fas fa-users"></i> Jogadores</h4>
-            <div id="playerListStatus" class="players-list"></div>
-          </div>
-
-          <div class="finger-box hidden" id="fingerBox">
-            <h4 style="font-weight: 600; margin-bottom: 10px;"><i class="fas fa-hand-point-up fa-bounce"></i> Poder do Dedo Ativo!</h4>
-            <p style="margin-bottom: 10px;">Seja rápido para não ser o último!</p>
-            <button id="btnFingerClick" class="btn-danger" style="margin-top: 5px; width: 100%;">
-              <i class="fas fa-bolt"></i> CLIQUE AGORA!
-            </button>
-            <div id="fingerQueue" style="margin-top: 10px; font-weight: 500;"></div>
-          </div>
-
-          <div style="text-align: center; margin: 20px 0;" class="button-group">
-            <button id="btnUseJoker" class="btn-info" style="display: none;">
-              <i class="fas fa-magic"></i> Usar Coringa
-            </button>
-            <button id="btnActivateFinger" class="btn-warning" style="display: none;">
-              <i class="fas fa-hand-point-up"></i> Poder do Dedo (8)
-            </button>
-            <button id="btnRecordVideo" class="btn-dark">
-              <i class="fas fa-video"></i> Gravar Vídeo
-            </button>
-          </div>
-
-          <div class="section" style="margin-bottom: 20px;">
-            <h4 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 10px;"><i class="fas fa-history"></i> Eventos do Jogo</h4>
-            <div id="playerPainel" class="panel-box"></div>
-          </div>
-
-          <div class="section">
-            <h4 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 10px;"><i class="fas fa-comments"></i> Chat</h4>
-            <div class="chat-container">
-              <div id="playerChat" class="chat-messages"></div>
-              <div class="chat-input-group">
-                <input type="text" id="playerChatInput" placeholder="Digite uma mensagem..." />
-                <button id="btnPlayerSendChat" class="btn-info">
-                  <i class="fas fa-paper-plane"></i> Enviar
+        <div id="playerGame" class="hidden">
+          <div class="game-grid">
+            <!-- Cabeçalho -->
+            <div class="header-area">
+              <div id="playerStatusPanel" class="status-panel hidden"></div>
+              
+              <!-- Finger Box - Poder do Dedo -->
+              <div class="finger-box hidden" id="fingerBox">
+                <h4 style="font-weight: 600; margin-bottom: 10px;"><i class="fas fa-hand-point-up fa-bounce"></i> Poder do Dedo Ativo!</h4>
+                <p style="margin-bottom: 10px;">Seja rápido para não ser o último!</p>
+                <button id="btnFingerClick" class="btn-danger" style="margin-top: 5px; width: 100%;">
+                  <i class="fas fa-bolt"></i> CLIQUE AGORA!
                 </button>
+                <div id="fingerQueue" style="margin-top: 10px; font-weight: 500;"></div>
+              </div>
+            </div>
+            
+            <!-- Painel Esquerdo -->
+            <div class="left-panel">
+              <div class="section" style="height: 100%; display: flex; flex-direction: column;">
+                <h4 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 10px;">
+                  <i class="fas fa-gamepad"></i> Sua Jogada
+                </h4>
+                
+                <!-- Carta Atual -->
+                <div style="text-align: center; margin-bottom: 15px;">
+                  <h5 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 10px;">
+                    <i class="fas fa-crown"></i> Carta Atual
+                  </h5>
+                  <div id="currentCardPlayer" style="text-align: center;">Nenhuma</div>
+                  <button id="btnDrawCardPlayer" class="btn-warning" style="display: none; margin-top: 15px; width: 100%;">
+                    <i class="fas fa-hand-paper"></i> Puxar Carta
+                  </button>
+                </div>
+                
+                <!-- Baralho -->
+                <div class="deck-container">
+                  <h5 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 5px;">
+                    <i class="fas fa-layer-group"></i> Baralho
+                  </h5>
+                  <div id="deckCountPlayer" style="margin-bottom: 5px; color: var(--primary-dark); font-weight: 500;"></div>
+                  <div id="deckViewPlayer"></div>
+                </div>
+                
+                <!-- Ações especiais -->
+                <div style="text-align: center; margin-top: auto; padding-top: 15px;" class="button-group">
+                  <button id="btnUseJoker" class="btn-info" style="display: none;">
+                    <i class="fas fa-magic"></i> Usar Coringa
+                  </button>
+                  <button id="btnActivateFinger" class="btn-warning" style="display: none;">
+                    <i class="fas fa-hand-point-up"></i> Poder do Dedo
+                  </button>
+                  <button id="btnRecordVideo" class="btn-dark">
+                    <i class="fas fa-video"></i> Gravar
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Painel Central - Eventos do Jogo -->
+            <div class="center-panel">
+              <h4 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 10px; text-align: center;">
+                <i class="fas fa-history"></i> Eventos do Jogo
+              </h4>
+              <div class="main-panel-box">
+                <div id="playerPainel" class="event-log"></div>
+              </div>
+              
+              <!-- Regras Ativas -->
+              <div style="margin-top: 10px;">
+                <h4 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 10px;">
+                  <i class="fas fa-book"></i> Regras Ativas
+                </h4>
+                <div id="playerRules" class="rules-box" style="max-height: 100px; overflow-y: auto;"></div>
+              </div>
+            </div>
+            
+            <!-- Painel Direito -->
+            <div class="right-panel">
+              <div class="section" style="height: 100%; display: flex; flex-direction: column;">
+                <!-- Jogadores -->
+                <h4 style="font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 10px;">
+                  <i class="fas fa-users"></i> Jogadores
+                </h4>
+                <div id="playerListStatus" class="players-list" style="flex: 1; overflow-y: auto;"></div>
+                
+                <!-- Chat -->
+                <h4 style="font-family: var(--font-heading); color: var(--primary-dark); margin: 10px 0;">
+                  <i class="fas fa-comments"></i> Chat
+                </h4>
+                <div class="chat-container" style="flex: 1; display: flex; flex-direction: column; min-height: 200px;">
+                  <div id="playerChat" class="chat-messages" style="flex: 1; overflow-y: auto;"></div>
+                  <div class="chat-input-group">
+                    <input type="text" id="playerChatInput" placeholder="Digite uma mensagem..." />
+                    <button id="btnPlayerSendChat" class="btn-info">
+                      <i class="fas fa-paper-plane"></i>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1271,8 +1376,8 @@ function renderHostGame(data){
   qrCodeGame.innerHTML='';
   new QRCode(qrCodeGame, {
     text: location.origin+location.pathname+`?gameId=${gameCode}`,
-    width: 120, 
-    height: 120
+    width: 100, 
+    height: 100
   });
 
   const remainingCards = data.deck ? data.deck.length : 0;
@@ -1292,12 +1397,12 @@ function renderHostGame(data){
     hostRules.innerHTML = `<div style="text-align: center; color: #888; padding: 10px;"><i class="fas fa-info-circle"></i> Nenhuma regra definida</div>`;
   }
 
-  // Lista de jogadores
+  // Lista de jogadores - destaque para quem tem poder do dedo
   hostPlayersStatus.innerHTML = players.map((p, i) => {
     const isCurrent = (i === data.currentPlayerIndex);
     const avatarLetter = p.name.charAt(0).toUpperCase();
-    let html = `<div class="player-item ${isCurrent ? 'current' : ''}">
-      <div class="player-avatar">${avatarLetter}</div>
+    let html = `<div class="player-item ${isCurrent ? 'current' : ''} ${p.hasFingerPower ? 'finger-power' : ''}">
+      <div class="player-avatar" ${p.hasFingerPower ? 'style="background: var(--warning); color: var(--dark);"' : ''}>${avatarLetter}</div>
       <div class="player-name">${p.name}</div>
       <div class="player-badges">`;
     
@@ -1310,14 +1415,14 @@ function renderHostGame(data){
     }
     
     if (p.hasFingerPower) {
-      html += `<span class="badge"><i class="fas fa-hand-point-up"></i></span>`;
+      html += `<span class="badge" style="background-color: var(--warning); color: var(--dark);"><i class="fas fa-hand-point-up"></i> Poder do Dedo</span>`;
     }
     
     html += `</div></div>`;
     return html;
   }).join('');
 
-  // Painel de eventos
+  // Painel de eventos - centralizado e destacado
   if(data.logs && data.logs.length > 0){
     hostPainel.innerHTML = data.logs.map(l => `<div>${l}</div>`).join('');
     hostPainel.scrollTop = hostPainel.scrollHeight;
@@ -1345,6 +1450,28 @@ function renderHostGame(data){
   } else {
     btnDrawCard.disabled = false;
     btnDrawCard.innerHTML = '<i class="fas fa-hand-paper"></i> Puxar Carta';
+  }
+  
+  // Adicionar botão para finalizar Poder do Dedo se estiver ativo
+  const fp = data.fingerPower || {};
+  if(fp.active) {
+    // Pode adicionar um botão específico no painel do host para finalizar o poder do dedo
+    if (!document.getElementById('btnFinalizeFinger')) {
+      const btnFinalizeFinger = document.createElement('button');
+      btnFinalizeFinger.id = 'btnFinalizeFinger';
+      btnFinalizeFinger.className = 'btn-danger';
+      btnFinalizeFinger.innerHTML = '<i class="fas fa-stop-circle"></i> Finalizar Poder do Dedo';
+      btnFinalizeFinger.onclick = finalizeFingerPower;
+      
+      // Adicionar antes do botão de encerrar partida
+      btnEndGame.parentNode.insertBefore(btnFinalizeFinger, btnEndGame);
+    }
+  } else {
+    // Remover o botão se não estiver ativo
+    const btnFinalizeFinger = document.getElementById('btnFinalizeFinger');
+    if (btnFinalizeFinger) {
+      btnFinalizeFinger.remove();
+    }
   }
 }
 
@@ -1615,15 +1742,15 @@ function updatePlayerView(gameData){
     playerStatusPanel.style.color = 'var(--primary-dark)';
     playerStatusPanel.innerHTML = '';
 
-    // Jogadores
+    // Jogadores - destaque para quem tem poder do dedo
     const players = Object.values(gameData.players || {});
     
     playerListStatus.innerHTML = players.map((pp, i) => {
       const isCurrent = (i === gameData.currentPlayerIndex);
       const avatarLetter = pp.name.charAt(0).toUpperCase();
       
-      let html = `<div class="player-item ${isCurrent ? 'current' : ''}">
-        <div class="player-avatar">${avatarLetter}</div>
+      let html = `<div class="player-item ${isCurrent ? 'current' : ''} ${pp.hasFingerPower ? 'finger-power' : ''}">
+        <div class="player-avatar" ${pp.hasFingerPower ? 'style="background: var(--warning); color: var(--dark);"' : ''}>${avatarLetter}</div>
         <div class="player-name">${pp.name}</div>
         <div class="player-badges">`;
       
@@ -1636,7 +1763,7 @@ function updatePlayerView(gameData){
       }
       
       if (pp.hasFingerPower) {
-        html += `<span class="badge"><i class="fas fa-hand-point-up"></i></span>`;
+        html += `<span class="badge" style="background-color: var(--warning); color: var(--dark);"><i class="fas fa-hand-point-up"></i> Poder do Dedo</span>`;
       }
       
       html += `</div></div>`;
@@ -1686,10 +1813,28 @@ function updatePlayerView(gameData){
       playerRules.innerHTML = `<div style="text-align: center; color: #888; padding: 10px;"><i class="fas fa-info-circle"></i> Nenhuma regra definida</div>`;
     }
 
-    // Jogador tem finger?
-    btnActivateFinger.style.display = pObj.hasFingerPower ? 'inline-block' : 'none';
+    // Jogador tem finger? - mostrar de forma mais proeminente
+    if (pObj.hasFingerPower) {
+      btnActivateFinger.style.display = 'inline-block';
+      btnActivateFinger.innerHTML = '<i class="fas fa-hand-point-up"></i> Ativar Poder do Dedo';
+      btnActivateFinger.className = 'btn-warning';
+      // Adicionar animação para chamar atenção
+      btnActivateFinger.classList.add('animate-pulse');
+      
+      // Indica no status panel também
+      if (playerStatusPanel.innerHTML.indexOf('Poder do Dedo') === -1) {
+        playerStatusPanel.innerHTML += `<div style="margin-top: 5px;"><i class="fas fa-hand-point-up"></i> Você tem o <strong>Poder do Dedo</strong> - Use quando quiser!</div>`;
+      }
+    } else {
+      btnActivateFinger.style.display = 'none';
+      btnActivateFinger.classList.remove('animate-pulse');
+    }
+    
     // Jogador tem coringa?
     btnUseJoker.style.display = (pObj.jokers > 0) ? 'inline-block' : 'none';
+    if (pObj.jokers > 0) {
+      btnUseJoker.innerHTML = `<i class="fas fa-magic"></i> Usar Coringa (${pObj.jokers})`;
+    }
 
     // Finger Power Global
     const fp = gameData.fingerPower || {};
@@ -1710,7 +1855,7 @@ function updatePlayerView(gameData){
       fingerBox.classList.add('hidden');
     }
 
-    // Painel
+    // Painel de eventos - centralizado e destacado
     if(gameData.logs && gameData.logs.length > 0){
       playerPainel.innerHTML = gameData.logs.map(l => `<div>${l}</div>`).join('');
       playerPainel.scrollTop = playerPainel.scrollHeight;
@@ -1826,10 +1971,7 @@ function activateFingerPower(){
     btnActivateFinger.innerHTML = '<i class="fas fa-hand-point-up"></i> Poder do Dedo (8)';
   }, 500);
   
-  // Auto-finalize após 10 segundos
-  setTimeout(() => {
-    finalizeFingerPower();
-  }, 10000);
+  // Não finaliza automaticamente - o organizador pode finalizar manualmente
 }
 
 function fingerClick(){
